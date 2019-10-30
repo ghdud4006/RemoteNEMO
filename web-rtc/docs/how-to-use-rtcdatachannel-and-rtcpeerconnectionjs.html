@@ -1,0 +1,334 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+
+<!DOCTYPE html>
+<html id="home" lang="en">
+
+    <head>
+        <title>How to use RTCDataChannel & RTCPeerConnection.js? | Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+        <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+
+            td {
+                border: 0;
+                padding: 0;
+            }
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+    
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://cdn.webrtc-experiment.com/syntax/sh_style.css">
+		
+    </head>
+
+    <body onload="sh_highlightDocument();">
+        <article>
+            <header style="text-align: center;">
+                <h1>How to use RTCDataChannel & RTCPeerConnection.js?</h1>
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                        
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+            
+            <div class="github-stargazers"></div>
+
+            <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px;">
+                This tutorial is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated (written in 2013)</span>. Please check this tutorial instead: <a href="https://codelabs.developers.google.com/codelabs/webrtc-web/#0">https://codelabs.developers.google.com/codelabs/webrtc-web/#0</a>
+            </blockquote>
+
+            <table style="width: 100%;">
+                <tr>
+                    <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            Are you interested in a "simple" guide about RTCDataChannel? Read <a href="https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html">this document</a>.
+                        </blockquote>
+                    </td>
+                </tr>
+            </table>
+            <table>
+
+                <tr>
+                    <td>
+                        <blockquote>
+                            If you're <strong>new</strong> to <strong>WebRTC</strong>; please read <a href="https://www.webrtc-experiment.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this document</a>.
+                        </blockquote>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background: #ECECEC; border: 1px dotted #BBA9A9; text-align: center;">Here is a <a href="https://www.webrtc-experiment.com/demos/client-side-datachannel.html" title="A simple one-page chat demo">simple one-page chat demo</a> uses <strong>RTCDataChannel</strong> APIs. <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/demos/client-side-datachannel.html">View Source Code</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            First of all, you need to reference this js-wrapper file for RTCWeb APIs:
+                        </blockquote>
+                        <code>&lt;script src="<strong>https://www.webrtc-experiment.com/RTCPeerConnection-v1.5.js</strong>"&gt;&lt;/script&gt;
+                        </code>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="background: #ECECEC; border: 1px dotted #BBA9A9; text-align: center;">You JUST need to write below code! Your project will work fine on Firefox <a href="http://www.mozilla.org/en-US/firefox/aurora/" target="_blank" rel="nofollow">Aurora</a>/<a href="http://nightly.mozilla.org/" target="_blank" rel="nofollow">Nightly</a> and <a href="https://www.google.com/intl/en/chrome/browser/canary.html" target="_blank" rel="nofollow">Chrome Canary</a>!
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h2>Offerer</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            You need to use offer/answer model to exchange SDP/ICE. For "offerer": use code like this:
+                        </blockquote>
+                        <pre class="sh_javascript">
+var peer = <strong>RTCPeerConnection</strong>({
+    <strong title="required">onICE</strong>: function (candidate) {},
+    <strong title="required">onOfferSDP</strong>: function(sdp) {},
+
+    <strong title="optional">onChannelMessage</strong>: function(event) {
+        <span class="comment">/* event.<strong>data</strong> */ </span>
+        <span class="comment">/* or → JSON.<strong>parse</strong>( event.<strong>data</strong> ) */ </span>
+     },
+    <strong title="optional">onChannelOpened</strong>: function(channel) {
+        window.<strong id="channel">channel</strong> = <strong>channel</strong>;
+    }
+});
+</pre>
+
+                        <blockquote>
+                            Here is the short explanation of above code ↑
+                        </blockquote>
+                        <ol>
+                            <li>
+                                <blockquote>
+                                    <strong>onICE</strong>: It returns locally generated <strong>ICE</strong> candidates; so you can share them with other peer(s).
+                                </blockquote>
+                                <blockquote>
+                                    <strong>candidate</strong> object contains two properties:
+                                    <ol>
+                                        <li>candidate.<code><strong>sdpMLineIndex</strong></code>
+                                        </li>
+                                        <li>candidate.<code><strong>candidate</strong></code>
+                                        </li>
+                                    </ol>
+                                </blockquote>
+                            </li>
+                            <li>
+                                <strong>onOfferSDP</strong>: returns <strong>offer sdp</strong>; so you can send it to other peer to get <strong>answer sdp</strong>.
+                            </li>
+                            <li>
+                                <code><strong>onChannelMessage</strong></code>: The message sent by other peer/channel.
+                            </li>
+                            <li>
+                                <code><strong>onChannelOpened</strong></code>: On data channel gets ready. It returns <a href="#channel">channel</a> object.
+                            </li>
+                        </ol>
+
+                        <br />
+                        <blockquote>
+                            You can send messages like this:
+                        </blockquote>
+                        <pre class="sh_javascript">
+<a href="#channel">channel</a>.<strong>send</strong>('<span class="comment">A simple text message</span>');
+<a href="#channel">channel</a>.<strong>send</strong>( 
+    JSON.<strong>stringify</strong>(<strong>{ message: "<span class="comment">A simple object</span>" }</strong>) 
+);
+
+<span class="comment">// or otherwise</span>
+
+peer.<strong>sendData</strong>('<span class="comment">A simple text message</span>');
+peer.<strong>sendData</strong>( 
+    JSON.<strong>stringify</strong>(<strong>{ message: "<span class="comment">A simple object</span>" }</strong>) 
+);
+</pre>
+
+                        <br />
+                        <blockquote>
+                            Some extra options:
+                        </blockquote>
+                        <pre class="sh_javascript">
+var peer = <strong>RTCPeerConnection</strong>({
+    ...    
+    <span class="comment">// On DataChannel close event fires</span>
+    <strong title="optional">onChannelClosed</strong>      : function(event) {},
+    
+    <span class="comment">// On DataChannel Error</span>
+    <strong title="optional">onChannelError</strong>       : function(event) {},
+    
+    <span class="comment">// channel name; by default it is "<strong>RTCDataChannel</strong>"</span>
+    <strong title="optional">channel</strong>               : 'ABCDEF',
+    
+    <span class="comment">// Extend second argument passed to RTCPeerConnection object</span>
+    <strong title="optional">optional</strong>             : { <strong>optional</strong>: [{ <strong>RtpDataChannels</strong>: true}] }
+});
+</pre>
+
+                        <br />
+                        <blockquote>
+                            By default <code>optional</code> value is "<code>{ <strong>optional</strong>: [{ <strong>RtpDataChannels</strong>: true}] }</code>" --- so you don't need to change it.
+                        </blockquote>
+
+                        <blockquote>
+                            You don't need to attach client stream. You JUST need to exchange SDP/ICE and that's all you need to do!!
+                        </blockquote>
+
+                        <blockquote>
+                            YOU can use WebSocket or XHR for SDP/ICE exchange.
+                        </blockquote>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h2>On Getting Answer SDP:</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            Now assume that other peer generated <strong>answer sdp</strong> and sent to you; you can pass that sdp to this function:
+                        </blockquote>
+
+                        <blockquote>
+                            <code>peer.<strong>addAnswerSDP</strong>( <strong>answer_sdp</strong> );
+                            </code>
+                        </blockquote>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h2>On Getting ICE:</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            Now assume that other peer generated <strong>ICE</strong> and sent to you; you can pass that ICE to this function:
+                        </blockquote>
+                        <blockquote>
+                            <pre class="sh_javascript">
+peer.<strong>addICE</strong>({
+    <strong>sdpMLineIndex</strong> 	: candidate.<strong>sdpMLineIndex</strong>,
+    <strong>candidate</strong> 		: candidate.<strong>candidate</strong>
+});
+</pre>
+                        </blockquote>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <h2>Answerer</h2>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            99% process is the same for peer who "<strong>creates answer sdp</strong>"; the only difference is: for that peer you don't need "<code><strong>onOfferSDP</strong></code>" and also you don't need to call "<code><strong>peer.addAnswerSDP( answer_sdp );</strong></code>". What extra you need to do is here:
+                        </blockquote>
+                        <pre class="sh_javascript">
+var peer = <strong>RTCPeerConnection</strong>({
+    <span class="comment">// see below two additions ↓</span>
+    <strong>offerSDP</strong>      	: offer_sdp,
+    <strong>onAnswerSDP</strong>   	: function(sdp) {},
+    
+    <strong>onICE</strong>     		: function (candidate) {},
+    <strong title="optional">onChannelMessage</strong>    : function(event) {
+        <span class="comment">/* event.<strong>data</strong> */ </span>
+        <span class="comment">/* or → JSON.<strong>parse</strong>( event.<strong>data</strong> ) */ </span>
+     },
+    <strong title="optional">onChannelOpened</strong>       : function(channel) {}
+});
+</pre>
+                        <br />
+                        <blockquote>
+                            Let me elaborate:
+                        </blockquote>
+                        <ol>
+                            <li>
+                                <strong>offerSDP</strong>: you need to pass <strong>offer sdp</strong> sent by other peer (offerer).
+                            </li>
+                            <li>
+                                <strong>onAnswerSDP</strong>: returns <strong>answer sdp</strong> so you can send it to other peer (offerer).
+                            </li>
+                        </ol>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            <strong>Note:</strong> For a detailed document about "<strong>How to write a realtime WebRTC app using socket.io or WebSocket?</strong>" <a href="/docs/how-to-use-rtcpeerconnection-js-v1.1.html">click here</a>.
+                        </blockquote>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <blockquote>
+                            Are you interested in a "simple" guide about RTCDataChannel? Read <a href="https://www.webrtc-experiment.com/docs/rtc-datachannel-for-beginners.html">this document</a>.
+                        </blockquote>
+                    </td>
+                </tr>
+            </table>
+
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+        </article>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

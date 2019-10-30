@@ -1,0 +1,11 @@
+# Node
+node_modules
+
+# bower
+bower_components
+
+.DS_Store
+
+!RecordRTC-to-Nodejs/node_modules
+
+package-lock.json

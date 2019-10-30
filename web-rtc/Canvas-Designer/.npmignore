@@ -1,0 +1,14 @@
+# ignore everything
+*
+
+# but not these files...
+!canvas-designer-widget.js
+!widget.html
+!widget.js
+!widget.min.js
+!dev/webrtc-handler.js
+!index.html
+!package.json
+!bower.json
+!server.js
+!README.md

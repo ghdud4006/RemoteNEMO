@@ -1,0 +1,513 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>WebRTC for newbies! | Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+        
+        <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+
+            code {
+                color: red;
+                font-family: inherit;
+            }
+
+            table { background: white; }
+
+            td {
+                border: 0;
+                padding: 0;
+            }
+
+            .image-container {
+                margin: 2em 0;
+                text-align: center;
+            }
+
+            .image-parent {
+                border: 2px solid black;
+                border-radius: 5px;
+                margin: 0 2em;
+            }
+
+            .image-parent img { width: 100%; }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://cdn.webrtc-experiment.com/syntax/sh_style.css">
+		
+    </head>
+
+    <body onload="sh_highlightDocument();">
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    <a href="https://www.webrtc-experiment.com/">WebRTC</a> for newbies! ® 
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                </h1>            
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+
+            <div class="github-stargazers"></div>
+
+            <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px;">
+                This tutorial is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated (written in 2013)</span>. Please check this tutorial instead: <a href="https://codelabs.developers.google.com/codelabs/webrtc-web/#0">https://codelabs.developers.google.com/codelabs/webrtc-web/#0</a>
+            </blockquote>
+            
+            <section class="experiment">
+                <h2 class="header">Suggestions</h2>
+                <ol>
+                    <li>
+                        If you're newcomer, newbie or beginner; you're suggested to try <a href="http://www.rtcmulticonnection.org/docs/" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
+                    </li>
+                </ol>
+		
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">Start here..</h2>
+				
+                <p>
+                    The exchange of real-time media between two browsers follows this process:
+                </p>
+				
+                <ol>
+                    <li>At the media source, input devices are opened for capture. <small>( getUserMedia )</small>
+                    </li>
+
+                    <li>Media from the input devices is encoded into packets that are transmitted across the network.
+                    </li>
+
+                    <li>At the media destination, the packets are decoded and formed into a media stream.
+                    </li>
+
+                    <li>The media stream is sent to output devices. <small>( onaddstream )</small>
+                    </li>
+                </ol>
+				
+                <div class="image-container">
+                    <div class="image-parent"><img src="http://html5labs.interoperabilitybridges.com/cu-rtc-web/overview.png" alt="WebRTC Experiments"></div>
+                </div>
+				
+                <p>
+                    An application that wishes to enable two-way audio and video communications between peers can create four media streams (i.e. 4 RTP streams):
+                </p>
+				
+                <ol>
+                    <li>An audio stream in each direction, <small>(i.e. outgoing/incoming audio RTP streams)</small>
+                    </li>
+
+                    <li>A video stream in each direction. <small>(i.e. outgoing/incoming video RTP streams)</small>
+                    </li>
+                </ol>
+				
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">Any installation needed on the server?</h2>
+				
+                <p>
+                    A signaling gateway. ICE server lies in that gateway.
+                </p>
+				
+                <p>
+                    A media server for large scale applications:
+                </p>
+				
+                <ol>
+                    <li>to store recorded media streams (audio/video/files/text/etc.) or data</li>
+                    <li>to make SIP calls to PSTN (legacy) networks</li>
+                    <li>
+                        to transcode/mix/merge streams
+                    </li>
+                </ol>
+                <p>
+                    obviously you need a media server and many installations!
+                </p>
+				
+                <p>
+                    So there are three kinds of concrete servers:
+                </p>
+				
+                <ol>
+                    <li>Signalling Server (SIP,XMPP,WebSocket,Socket.io,XHR,etc.)</li>
+                    <li>ICE Servers (STUN,TURN)</li>
+                    <li>Media Servers (Asterisk, etc.)</li>
+                </ol>
+                    
+				
+                <p>
+                    First two are mandatory for each application.
+                </p>
+				
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">I'm confused about node.js!</h2>
+				
+                <p>
+                    It can be your custom signaling gateway. It needs installations; server side work and more!
+                </p>
+				
+                <p>
+                    It is suggested to use Firebase, PubNub or Pusher for signaling until you get mature!
+                </p>
+		
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">What is signaling and why it is needed?</h2>
+				
+                <p>
+                    Interoperable real-time media between browsers uses RTP.
+                </p>
+				
+                <p>
+                    RTP depends on the existence of a signaling channel to establish a common understanding of the meaning of packets.
+                </p>
+				
+                <p>
+                    This includes identification of different streams, codecs, and codec parameters.
+                </p>
+				
+                <p>
+                    Applications that establish peer-to-peer transports require that the IP addresses of a peer are signaled to the remote peer.
+                </p>
+				
+                <p>
+                    Each real-time port consists of an IP address, a port number, a username fragment and password. This information is exchanged with the remote peer using whatever signaling mechanism is chosen by the application.
+                </p>
+				
+                <p>
+                    In order to establish a transport between a local peer and remote peer, the following process is applied:
+                </p>
+				
+                <ol>
+                    <li>The local peer opens one or more real-time ports. <small>( RTP )</small>
+                    </li>
+
+                    <li>The local peer then has to learn of the ports that its remote peer has opened. This uses a signaling channel specific to the application. For instance, a web application could use previously HTTP requests or Websockets connections for this purpose.
+                    </li>
+
+                    <li>A process of discovery is used to find a local and remote port pair (a candidate pair) that can exchange UDP packets. One or more connectivity checks are made from different local ports toward different remote ports. A successful connectivity check indicates that packets can reach the peer and that the peer consents to receive packets.
+                    </li>
+
+                    <li>Finally, a real-time transport is established on the pair of ports. A security context is established so that secured media packets are able to flow in both directions between peers. Real-Time media streams can then be added to the transport.
+                    </li>
+                </ol>
+				
+                <p>
+                    The initial connection between peers must be accomplished via an application server that provides for user discovery, communication, and Network Address Translation (NAT) with data streaming.
+                </p>
+				
+                <p>
+                    Signalling is the mechanism by which peers send control messages to each other for the purpose of establishing the communication protocol, channel, and method. These are not specified in the WebRTC standard. Rather, the developer may choose any messaging protocol (such as SIP or XMPP), and any two-way communication channel (such as WebSocket or XMLHttpRequest) in tandem with a persistent connection server API (like the <a href="https://developers.google.com/appengine/docs/python/channel/overview" target="_blank">Google Channel API</a>) for AppEngine.
+                </p>
+				
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">What is SDP?</h2>
+				
+                <p>
+                    Session Description Protocol (SDP): A protocol that is used to announce sessions, manage session invitations, and perform other types of initiation tasks for multimedia sessions.
+                </p>
+				
+                <p>
+                    A well-defined format for conveying sufficient information to discover and participate in a multimedia session (<a href="https://www.webrtc-experiment.com/video-conferencing/">video conference</a>).
+                </p>
+				
+                <p>
+                    A multimedia session is a set of multimedia senders and receivers and the data streams flowing from senders to receivers. A multimedia conference is an example of a multimedia session.
+                </p>
+				
+                <p>
+                    When initiating multimedia teleconferences, voice-over-IP calls, streaming video, or other sessions, there is a requirement to convey media details, transport addresses, and other session description metadata to the participants.
+                </p>
+				
+                <p>
+                    SDP provides a standard representation for such information, irrespective of how that information is transported.
+                </p>
+				
+                <p>
+                    Here is a simple (short) SDP ( about 1000 to 2200 characters text message ) generated by Google Chrome:
+                </p>
+				
+                <pre class="sh_javascript">
+a=group:BUNDLE <strong title="audio stream – microphone">audio</strong> <strong title="video stream – webcam">video</strong> <strong title="RTCDataChannel – files, images, text, any kind of data!">data</strong>
+...
+a=rtpmap:103 <strong title="ISAC">ISAC</strong>/16000
+a=rtpmap:111 <strong title="opus audio codec">opus</strong>/48000
+a=rtpmap:0 <strong title="PCMU">PCMU</strong>/8000
+...
+a=rtpmap:100 <strong title="VP8">VP8</strong>/90000
+...
+</pre>
+
+				
+                <div class="image-container">
+                    <div class="image-parent"><img src="https://sites.google.com/site/muazkh/how-webrtc-offer-answer-model-works.png" alt="How offer/answer model works in WebRTC?"></div>
+                </div>
+				
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">Cross browser declaration:</h2>
+				
+                <pre class="sh_javascript">
+SessionDescription = <strong title="Chrome implementation">RTCSessionDescription</strong> || <strong title="Firefox implementation">mozRTCSessionDescription</strong>
+</pre>
+				
+                <p>
+                    He is a simple cross-browser "peer.createAnswer" API implementation:
+                </p>
+				
+                <pre class="sh_javascript">
+offerSDP = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(offerSDP);
+peerConnection.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(offerSDP);
+
+peerConnection.<strong title="Creating answer SDP on both Firefox and Chrome">createAnswer</strong>(function (sessionDescription) {
+    peerConnection.<strong title="Setting local description on both Firefox and Chrome">setLocalDescription</strong>(sessionDescription);
+}, null, constraints);
+</pre>
+
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">How to order WebRTC code?</h2>
+				
+                <p>
+                    First of all; create "offer sdp" by calling <code>peerConnection.createOffer</code>:
+                </p>
+				
+                <pre class="sh_javascript">
+offerer.<strong title="Creating offer SDP on both Firefox and Chrome">createOffer</strong>(function (offerSDP) {
+    offerer.<strong title="Setting local description on both Firefox and Chrome">setLocalDescription</strong>(offerSDP);
+    // use XHR/WebSocket/etc. to exchange offer-sdp with other peer(s)
+}, null, constraints);
+</pre>
+				
+                <p>
+                    On the "answerer" side, set "remote descriptions" using "offer sdp":
+                </p>
+				
+                <p>
+                    <pre class="sh_javascript">
+<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong>);
+answerer.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(<strong title="Offer SDP is passed from offerer via XHR/WebSocket/etc.">offerSDP</strong>);
+</pre>
+                </p>
+				
+                <p>
+                    And then create "answer sdp":
+                </p>
+				
+                <pre class="sh_javascript">
+answerer.<strong title="Creating answer SDP on both Firefox and Chrome">createAnswer</strong>(function (answerSDP) {
+    answerer.<strong title="Setting local description on both Firefox and Chrome">setLocalDescription</strong>(answerSDP);
+    
+    // use XHR/WebSocket/etc. to exchange answer-sdp with "offerer"
+}, null, constraints);
+</pre>
+				
+                <p>
+                    On the offerer side, set remote descriptions using "answer sdp":
+                </p>
+				
+                <pre class="sh_javascript">
+<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong> = new <strong title="Chrome implementation of SessionDescription">SessionDescription</strong>(<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong>);
+offerer.<strong title="Setting remote description on both Firefox and Chrome">setRemoteDescription</strong>(<strong title="Answer SDP is passed from answerer via XHR/WebSocket/etc.">answerSDP</strong>);
+</pre>
+
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">What is ICE and is that mandatory?</h2>
+				
+                <p>
+                    The purpose of the ICE protocol is to establish a media path.
+                </p>
+				
+                <p>
+                    "Making a call starts by sending a SIP INVITE message with an SDP describing on which IP address(es) and port(s) the application can receive audio and/or video packets. These addresses and ports are known as candidates."
+                </p>
+				
+                <p>
+                    Specifically, a candidate is an IP address and port at which one peer can receive data from another peer.
+                </p>
+				
+                <p>
+                    There are 3 types of candidates:
+                </p>
+				
+                <ol>
+                    <li>
+                        Local candidate: A local IP address of the client.
+                    </li>
+					
+                    <li>
+                        Reflexive or STUN candidates: An IP address of the client's NAT (assuming they are only behind a single NAT). These are determined from another entity, and then communicated back to the client.
+                    </li>
+					
+                    <li>
+                        Relay or TURN candidate: An address on a relay server that has been allocated for use by the client.
+                        <p>
+                            "Traffic can always be sent successfully using relay candidates, unless a firewall blocks all traffic towards the client, in which case no legitimate firewall traversal technique can ever work. The problem with using relay candidates, however, is that they require server resources, and relayed traffic introduces additional delay, loss and jitter in the traffic stream."
+                        </p>
+                    </li>
+                </ol>
+				
+                <p>
+                    You can use <code>peerConnection.<strong>onicecandidate</strong></code> event to get ICE generated for local peer. You can send those ICE via XHR/WebSocket/WebSync toward destination.
+                </p>
+				
+                <p>
+                    <pre class="sh_javascript">
+a=candidate:<strong title="candidate number">1</strong> 1 UDP 2130706431 <strong title="ip address">192.168.1.102</strong> 1816 typ <strong>host</strong>
+a=candidate:<strong title="candidate number">2</strong> 1 UDP 2130706431 <strong title="ip address">23.45.1.102</strong> 3456 typ <strong>srflx</strong>
+a=candidate:<strong title="candidate number">3</strong> 1 UDP 2130706431 <strong title="ip address">34.66.1.102</strong> 5678 typ <strong>relay</strong>
+</pre>
+                </p>
+				
+                <p>
+                    "Once the callee has sent its ICE candidates, and once the caller receives them, they each start the ICE connectivity checks. At this point, both the parties know about their peer’s potential candidates. Each possible pair of local and remote candidates is formed, creating a number of candidate pairs. A connectivity check is done by sending STUN messages from the local candidate to the remote candidate of each pair, starting with the highest priority (i.e. most preferred) candidate pair first. Both parties exchange STUN messages in this way to determine the best possible candidate pair that they can use to communicate. Once a valid (i.e. successful) message has been sent both ways on a single candidate pair, the connectivity check can stop and media can be sent/received using that candidate pair."
+                </p>
+				
+                <p>
+                    Now if the call has been established, both the caller and callee send media to/from their successful candidate addresses. (usually using RTP protocol)
+                </p>
+				
+            </section>
+		
+            <section class="experiment">
+                <h2 class="header">onaddstream event:</h2>
+				
+                <p>
+                    <code>peerConnection.<strong>onaddstream</strong></code> fires as soon as local peer gets clue of the remote stream. Remember, it takes a few seconds for remote stream to start flowing. You can check whether remote stream started flowing or not using something like this:
+                </p>
+                <pre class="sh_javascript">
+if (chrome) video.src = webkitURL.createObjectURL( event.stream )
+if (firefox) video.mozSrcObject = event.<strong>stream</strong>;
+if (!(video.<strong>readyState</strong> &lt;= HTMLMediaElement.<strong>HAVE_CURRENT_DATA</strong> 
+    || video.<strong>paused</strong>
+    || video.<strong>currentTime</strong> &lt;= 0))  { }
+</pre>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header" id="single-page-demos">Single Page Demos</h2>
+                <ol>
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/demos/client-side.html">Simplest Example!</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/demos/client-side-socket-io.html">Simple Demo using Socket.io</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/demos/client-side-websocket.html">Simple Demo using WebSocket</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/demos/">A few other single-page demos can be found here</a>
+                    </li>
+                </ol>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header" id="real-demos">Real Demos</h2>
+                <ol>
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/websocket/">Simple demo using WebSockets</a> / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/websocket">Source Code</a>
+                    </li>
+                    
+                    <li>
+                        <a href="https://www.webrtc-experiment.com/socket.io/">Simple demo using Socket.io</a> / <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/socket.io">Source Code</a>
+                    </li>
+                </ol>
+            </section>
+			
+            <section class="experiment">
+                <h2 class="header" id="other-tutorials">Other Tutorials</h2>
+                <ol>
+                    <li>
+                        Are you interested in a "more" simple full-fledged guide? Read <a href="https://www.webrtc-experiment.com/docs/how-to-use-rtcpeerconnection-js-v1.1.html">this tutorial</a>.
+                    </li>
+                    
+                    <li>
+                        Are you interested in a "beginners" guide? Read <a href="https://www.webrtc-experiment.com/docs/webrtc-for-beginners.html">this tutorial</a>.
+                    </li>
+                    
+                    <li>
+                        You can find many tutorials here: <a href="https://www.webrtc-experiment.com/#documentations">https://www.webrtc-experiment.com/#documentations</a>
+                    </li>
+                </ol>
+            </section>
+        
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+        </article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

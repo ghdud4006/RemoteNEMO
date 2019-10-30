@@ -1,0 +1,202 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+
+<!DOCTYPE html>
+<html id="home" lang="en">
+
+    <head>
+        <title>STUN or TURN? Which one to prefer; and why?  | Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+	
+        <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+
+            .image-container {
+                margin: 2em 0;
+                text-align: center;
+            }
+
+            .image-parent {
+                border: 2px solid black;
+                border-radius: 5px;
+                margin: 0 2em;
+            }
+
+            .image-parent img { width: 100%; }
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+	
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://cdn.webrtc-experiment.com/syntax/sh_style.css">
+    </head>
+
+    <body onload="sh_highlightDocument();">
+        <article>
+            <header style="text-align: center;">
+                <h1>STUN or TURN? Which one to prefer; and why?
+            
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                        
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+            
+            <div class="github-stargazers"></div>
+
+            <blockquote style="background: #f3b7b7;border: 5px solid black;border-radius: 5px;">
+                This tutorial is <span style="border: 1px dotted red; background: yellow; padding: 2px 5px;">out-dated (written in 2013)</span>. WebRTC implementation is heavily changed since then. So please do NOT refer or rely on this page.
+            </blockquote>
+				
+            <ol>
+                <li>
+                    The key difference between these two types of solutions though is that media will travel directly between both endpoints if <strong>STUN</strong> is used, whereas media will be proxied through the server if <strong>TURN</strong> is utilized. 
+                </li>
+            
+                <li>
+                    TURN is preferred because it is capable to traverse symmetric NATs too. However, STUN is useful to speedup the connection out of getting immediate candidates when users are sitting behind same NAT e.g. LAN.
+                </li>
+            
+                <li>
+                    A media relay server or ICE server is utilized to setup the media session and provide the list of potential candidates to both parties in a call regardless of which media delivery option is selected for each end of the call. 
+                </li>
+            
+                <li>
+                    Also understand that the media stream may not always use the same solution on both ends as STUN may be possible for one endpoint but not for the other endpoint.
+                </li>
+            
+                <li>
+                    When we use <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/RTCPeerConnection/RTCPeerConnection-v1.5.js#L34" target="_blank">both</a> STUN and TURN servers; <strong>STUN is always attempted first</strong> <span style="background: rgb(253, 215, 218); border: 1px dotted red; padding: .2em .4em;" title="It seems that TURN is attempted first on chrome!">(!!!!!...not-on-chrome...!!!!!)</span>; TURN is used as fallback option depending on client locations and network topologies.
+                </li>
+            
+                <li>
+                    <pre class="sh_javascript">
+var iceServers = {
+     iceServers: [STUN, TURN]
+};
+</pre>
+                </li>
+            
+                <li>
+                    TURN protocol runs top of STUN to setup a relay service. A well written TURN server will also function as STUN; so you can skip a "separate STUN server" option in such case.
+                </li>
+            
+                <li>
+                    TURN is developed to cover holes haven't (or may not) punched by the STUN; e.g. SNATs i.e. Symmetric NATs.
+                </li>
+            
+                <li>
+                    A critical disadvantage of a TURN server is its cost; and huge bandwidth usage in case when HD video stream is delivered.
+                </li>
+            
+                <li>
+                    The acronym STUN may also be seen referred to as <strong>Simple Traversal of UDP through NAT</strong> which was the protocol’s original name (as defined in now obsolete <a href="http://www.packetizer.com/rfc/rfc3489/?format=txt" target="_blank">RFC 3489</a>).  
+                </li>
+            
+                <li>
+                    When the protocol was updated to include support for TCP the name was changed to Session Traversal Utilities for NAT to reflect that it was no longer limited to UDP traffic.
+                </li>
+            
+                <li>
+                    Although media leveraging STUN is not a direct host-to-host session it is the next best option as the media path is still sent directly between the two client’s own firewalls, over the Internet.  
+                </li>
+            
+                <li>
+                    This keeps the media session as short as possible and does not burden the corporate network with handling the media relay processing or bandwidth.
+                </li>
+            
+                <li>
+                    There are three types of candidates:
+                
+                    <ol>
+                        <li><code>Local (or Host candidates)</code> — the actual IP address bound directly to the remote client’s host operating system. It is "highest preferred" candidate option; and attempted first.</li>
+                        <li><code>Reflexive (STUN)</code> — the public IP address assigned to the client’s immediate firewall perform network address translation. It is "next preferred" candidate option.</li>
+                        <li><code>Relay (TURN)</code> — the publically accessible IP address assigned to the media relay server which is allocated to the client. If STUN fails; the final option is "relay candidates".</li>
+                    </ol>
+                </li>
+            
+                <li>
+                    There is no way to direct browser to gather only "relay" candidates. Only signalling portion is left to the application developer. Here is a simple workaround to prefer only TURN-candidates:
+                </li>
+            
+                <li>
+                    <pre class="sh_javascript">
+var host      = false;
+var reflexive = false;
+var relay     = true;
+
+peer.onicecandidate = function(e) {
+     var ice = e.candidate;
+     if(!ice) return;
+	 
+     if(host && ice.candidate.indexOf('typ host') == -1) return;
+     if(reflexive && ice.candidate.indexOf('srflx') == -1) return;
+     if(relay && ice.candidate.indexOf('relay') == -1) return;
+	 
+     POST_to_Other_Peer(ice);
+};
+</pre>
+                </li>
+            
+                <li>
+                    What to install TURN server on your own VPS? Read <a href="https://www.webrtc-experiment.com/docs/TURN-server-installation-guide.html">TURN server installation Guide</a>
+                </li>
+            </ol>
+
+            <br />
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Want to ask a Question?</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Feel free to ask any question regarding WebRTC!"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Ask a Question</button><small style="margin-left: 1em;">You can include your email for private conversation!</small>
+            </section>
+        </article>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

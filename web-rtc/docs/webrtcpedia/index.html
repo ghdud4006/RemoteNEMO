@@ -1,0 +1,878 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>WebRTCPedia! the Encyclopedia!</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+        
+        <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+
+            code {
+                color: red;
+                font-family: inherit;
+            }
+
+            .image img {
+            	width: 100%;
+            }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+
+        <script src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js" type="text/javascript"> </script>
+	    <script src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js" type="text/javascript"> </script>
+	    <script src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js" type="text/javascript"> </script>
+	    <link href="https://cdn.webrtc-experiment.com/syntax/sh_style.css" type="text/css" rel="stylesheet">
+    </head>
+
+    <body onload="sh_highlightDocument();">
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    WebRTCPedia! the Encyclopedia!
+                </h1>            
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+
+            <div class="github-stargazers"></div>
+
+            <section class="experiment" id="mediastream-stop-hack">
+            	<h2>
+            		<a href="#mediastream-stop-hack">MediaStream.stop is obsolete or removed; how to fix it?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+var MediaStream = window.MediaStream;
+
+if (typeof MediaStream === 'undefined' && typeof webkitMediaStream !== 'undefined') {
+    MediaStream = webkitMediaStream;
+}
+
+if (typeof MediaStream !== 'undefined' && !('stop' in MediaStream.prototype)) {
+    MediaStream.prototype.stop = function() {
+        this.getTracks().forEach(function(track) {
+            track.stop();
+        });
+    };
+}
+</pre>
+				<h2>Now, feel free to use <code>stream.stop</code>:</h2>
+
+				<pre class="sh_javascript">
+stream.addEventListener('ended', function() {
+    alert('Stream is stopped.');
+}, false);
+
+stream.stop();
+</pre>
+				<small>via: <a href="http://stackoverflow.com/a/11646945/552182" target="_blank">http://stackoverflow.com/a/11646945/552182</a></small>
+            </section>
+
+            <section class="experiment" id="getremotestreams-alternative">
+                <h2>
+                    <a href="#getremotestreams-alternative">getRemoteStreams alternative?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+var stream = new MediaStream();
+peer.getReceivers().forEach(function(receiver) {
+    stream.addTrack(receiver.track);
+});
+ 
+video.srcObject = stream;
+ 
+console.log(stream.getTracks()); // check console logs
+</pre>
+
+                <h2>Or</h2>
+                <pre class="sh_javascript">
+var audioTrack, videoTrack;
+peer.getReceivers().forEach(function(receiver) {
+    if (receiver.track.kind === 'audio' && !audioTrack) {
+        audioTrack = receiver.track;
+    }
+
+    if (receiver.track.kind === 'video' && !videoTrack) {
+        videoTrack = receiver.track;
+    }
+});
+
+var stream = new MediaStream();
+
+if (audioTrack) {
+    stream.addTrack(audioTrack);
+}
+
+if (videoTrack) {
+    stream.addTrack(videoTrack);
+}
+
+video.srcObject = stream;
+
+console.log(stream.getTracks()); // check console logs
+</pre>
+                <h2>Or override "getRemoteStreams" and "getLocalStreams"</h2>
+                <pre class="sh_javascript">
+if (!peer.getRemoteStreams) {
+    peer.getRemoteStreams = function() {
+        var stream = new MediaStream();
+        peer.getReceivers().forEach(function(receiver) {
+            stream.addTrack(receiver.track);
+        });
+        return [stream];
+    };
+}
+
+if (!peer.getLocalStreams) {
+    peer.getLocalStreams = function() {
+        var stream = new MediaStream();
+        peer.getSenders().forEach(function(sender) {
+            stream.addTrack(sender.track);
+        });
+        return [stream];
+    };
+}
+</pre>
+            </section>
+            
+            <section class="experiment" id="stream-ended-listener">
+            	<h2>
+            		<a href="#stream-ended-listener">How to detect if screen-sharing stopped or camera stopped (cross browser)?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+addStreamStopListener(yourScreen, function() {
+    alert('screen sharing is ended.');
+});
+
+function addStreamStopListener(stream, callback) {
+    stream.addEventListener('ended', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.addEventListener('inactive', function() {
+        callback();
+        callback = function() {};
+    }, false);
+    stream.getTracks().forEach(function(track) {
+        track.addEventListener('ended', function() {
+            callback();
+            callback = function() {};
+        }, false);
+        track.addEventListener('inactive', function() {
+            callback();
+            callback = function() {};
+        }, false);
+    });
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="stream-ended-listener-using-promises">
+                <h2>
+                    <a href="#stream-ended-listener-using-promises">Stream end handler using promises:</a>
+                </h2>
+
+                <pre class="sh_javascript">
+addStreamStopListenerUsingPromises(stream).then(function() {
+    alert('screen sharing is ended.');
+});
+
+function addStreamStopListenerUsingPromises(stream) {
+    return new Promise(function(resolve, reject) {
+        try {
+            var callback = resolve;
+            stream.addEventListener('ended', function() {
+                callback();
+                callback = function() {};
+            }, false);
+            stream.addEventListener('inactive', function() {
+                callback();
+                callback = function() {};
+            }, false);
+            stream.getTracks().forEach(function(track) {
+                track.addEventListener('ended', function() {
+                    callback();
+                    callback = function() {};
+                }, false);
+                track.addEventListener('inactive', function() {
+                    callback();
+                    callback = function() {};
+                }, false);
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="get-mp3-stream">
+                <h2>
+                    <a href="#get-mp3-stream">How to get mp3 stream?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+document.querySelector('input[type=file]').onchange = function(event) {
+    var file = this.files[0];
+    if(file && file.size > 0) {
+        getMp3Stream(file, function(mp3Stream) {
+            mp3Stream.getTracks().forEach(function(track) {
+                rtcPeerConnection.addTrack(track, mp3Stream);
+            });
+
+            // or record
+            var recorder = new MediaRecorder(strea);
+
+            // or merge into microphone (using MultiStreamsMixer.js)
+            var audioMixer = new MultiStreamsMixer([microphone, mp3Stream]);
+            var microphoneAndScreenStream = audioMixer.getMixedStream();
+        });
+    }
+};
+
+function getMp3Stream(mp3File, callback) {
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var context = new AudioContext();
+    var gainNode = context.createGain();
+    gainNode.connect(context.destination);
+    gainNode.gain.value = 0; // don't play for self
+
+    var reader = new FileReader();
+    reader.onload = (function(e) {
+        // Import callback function
+        // provides PCM audio data decoded as an audio buffer
+        context.decodeAudioData(e.target.result, createSoundSource);
+    });
+    reader.readAsArrayBuffer(mp3File);
+
+    function createSoundSource(buffer) {
+        var soundSource = context.createBufferSource();
+        soundSource.buffer = buffer;
+        soundSource.start(0, 0 / 1000);
+        soundSource.connect(gainNode);
+        var destination = context.createMediaStreamDestination();
+        soundSource.connect(destination);
+
+        // durtion=second*1000 (milliseconds)
+        callback(destination.stream, buffer.duration * 1000);
+    }
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="get-mp3-stream-using-promises">
+                <h2>
+                    <a href="#get-mp3-stream-using-promises">How to get mp3 stream using promises?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+document.querySelector('input[type=file]').onchange = function(event) {
+    var file = this.files[0];
+    if(file && file.size > 0) {
+        getMp3StreamUsingPromises(file).then(function(mp3Stream) {});
+        var mp3Stream = await getMp3StreamUsingPromises(file);
+    }
+};
+
+function getMp3StreamUsingPromises(mp3File) {
+    return new Promise(function(resolve, reject) {
+        try {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            var context = new AudioContext();
+            var gainNode = context.createGain();
+            gainNode.connect(context.destination);
+            gainNode.gain.value = 0; // don't play for self
+
+            function createSoundSource(buffer) {
+                var soundSource = context.createBufferSource();
+                soundSource.buffer = buffer;
+                soundSource.start(0, 0 / 1000);
+                soundSource.connect(gainNode);
+                var destination = context.createMediaStreamDestination();
+                soundSource.connect(destination);
+
+                // durtion=second*1000 (milliseconds)
+                resolve(destination.stream, buffer.duration * 1000);
+            }
+
+            var reader = new FileReader();
+            reader.onload = (function(e) {
+                // Import callback function
+                // provides PCM audio data decoded as an audio buffer
+                context.decodeAudioData(e.target.result, createSoundSource);
+            });
+            reader.readAsArrayBuffer(mp3File);
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="camera-mic-already-allowed">
+            	<h2>
+            		<a href="#camera-mic-already-allowed">How to check if website already has privileges to access camera/microphone?</a>
+            	</h2>
+<pre class="sh_javascript">
+// link: https://cdn.webrtc-experiment.com/DetectRTC/checkDevicesSupport.js
+
+// check for microphone/camera support!
+checkDeviceSupport(function() {
+    document.write('hasWebCam: ', hasWebcam, '&lt;br&gt;');
+    document.write('hasMicrophone: ', hasMicrophone, '&lt;br&gt;');
+    document.write('isWebsiteHasWebcamPermissions: ', isWebsiteHasWebcamPermissions, '&lt;br&gt;');
+    document.write('isWebsiteHasMicrophonePermissions: ', isWebsiteHasMicrophonePermissions, '&lt;br&gt;');
+});
+</pre>
+				<small>via: <a href="http://stackoverflow.com/a/30047627/552182" target="_blank">http://stackoverflow.com/a/30047627/552182</a></small>
+            </section>
+
+            <section class="experiment" id="manage-bitrates">
+            	<h2>
+            		<a href="#manage-bitrates">How to manage audio/video bitrates?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+// Link this Library:
+// https://cdn.webrtc-experiment.com/BandwidthHandler.js
+
+// here is how to use it
+var bandwidth = {
+    screen: 300, // 300kbits minimum
+    audio: 50, // 50kbits  minimum
+    video: 256 // 256kbits (both min-max)
+};
+var isScreenSharing = false;
+
+sdp = BandwidthHandler.setApplicationSpecificBandwidth(sdp, bandwidth, isScreenSharing);
+sdp = BandwidthHandler.setVideoBitrates(sdp, {
+    min: bandwidth.video,
+    max: bandwidth.video
+});
+sdp = BandwidthHandler.setOpusAttributes(sdp);
+</pre>
+
+				<h2 id="audio-sdp-parameters"><a href="#audio-sdp-parameters">How to set audio sdp parameters?</a></h2>
+				<pre class="sh_javascript">
+sdp = BandwidthHandler.setOpusAttributes(sdp, {
+    'stereo': 0, // to disable stereo (to force mono audio)
+    'sprop-stereo': 1,
+    'maxaveragebitrate': 500 * 1024 * 8, // 500 kbits
+    'maxplaybackrate': 500 * 1024 * 8, // 500 kbits
+    'cbr': 0, // disable cbr
+    'useinbandfec': 1, // use inband fec
+    'usedtx': 1, // use dtx
+    'maxptime': 3
+});
+</pre>
+				<small>via: <a href="http://stackoverflow.com/a/16868123/552182" target="_blank">http://stackoverflow.com/a/16868123/552182</a></small>
+            </section>
+
+            <section class="experiment" id="chrome-camera-mic-issues">
+            	<h2>
+            		<a href="#chrome-camera-mic-issues">How to fix Chrome camera/microphone failures?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+# open this page
+chrome://settings/content#media-stream-mic
+</pre>
+
+				<div class="image">
+					<a href="https://i.stack.imgur.com/wVXyT.png" target="_blank">
+						<img src="https://i.stack.imgur.com/wVXyT.png">
+					</a>
+				</div>
+				<small>via: <a href="http://stackoverflow.com/a/14617402/552182" target="_blank">http://stackoverflow.com/a/14617402/552182</a></small>
+            </section>
+
+            <section class="experiment" id="detect-local-remote-stream">
+            	<h2>
+            		<a href="#detect-local-remote-stream">How to detect local or remote stream?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+// chrome 48+
+var isRemoteAudioStream = false;
+var isRemoteVideoStream = false;
+stream.getTracks().forEach(function(track) {
+    if (track.remote === true && track.kind === 'audio') {
+        isRemoteAudioStream = true;
+    }
+
+    if (track.remote === true && track.kind === 'video') {
+        isRemoteVideoStream = true;
+    }
+});
+
+alert('Remote audio stream? ' + isRemoteAudioStream);
+alert('Remote video stream? ' + isRemoteVideoStream);
+</pre>
+            </section>
+
+            <section class="experiment" id="single-audio-screen-stream">
+            	<h2>
+            		<a href="#single-audio-screen-stream">How to capture audio+screen in a single getUserMedia request?</a>
+            	</h2>
+
+            	<pre class="sh_javascript">
+// firefox 38+
+var screen = {
+    mediaSource: 'monitor' // monitor or window
+};
+
+var constraints = {
+    video: screen,
+    audio: true
+};
+
+navigator.mozGetUserMedia(constraints, successCallback, failureCallback);
+</pre>
+            </section>
+
+            <section class="experiment" id="htmlvideo-poster">
+                <h2>
+                    <a href="#htmlvideo-poster">How to display HTMLVideoElement poster?</a>
+                </h2>
+
+                <pre class="sh_javascript">
+htmlVideoElement.src = null;
+htmlVideoElement.pause();
+
+// above two lines are mandatory
+htmlVideoElement.poster = '/muted.png';
+</pre>
+            </section>
+
+            <section class="experiment" id="datachannel-data-send-trick">
+                <h2>
+                    <a href="#datachannel-data-send-trick">Before sending data over RTC-data-channels</a>
+                </h2>
+
+                <pre class="sh_javascript">
+// define below snippet as soon as you invoked "peer.createDataChannel" method
+
+// first step: take a reference to original "send" method
+channel.internalSend = channel.send;
+
+// define your own "send" wrapper
+channel.send = function(data) {
+    // check for "readyState==open"
+    if(channel.readyState !== 'open') {
+        // make sure that peer is NOT closed
+        if(peer.iceConnectionState.search(/disconnected|closed|failed/gi) !== -1) {
+            return;
+        }
+
+        // retry after 1-second
+        setTimeout(function() {
+            channels.send(data);
+        }, 1000);
+
+        return;
+    }
+
+    // send data using real data-channel object
+    channel.internalSend(data);
+};
+</pre>
+            </section>
+
+            <section class="experiment" id="modify-streams">
+                <h2>
+                    <a href="#modify-streams">Modify streams without "remaking" getUserMedia request</a>
+                </h2>
+
+                <pre class="sh_javascript">
+// supported only in firefox 43+
+
+var originalStream = window.yourOrigianlStream;
+
+// change from 360p to 720p
+function changeVideoStreamTo720p() {
+    var videoConstraints = {
+        width: { min: 1280 },
+        height: { min: 720 }
+    };
+
+    originalStream.getTracks().forEach(function(track) {
+        if(track.kind === 'video') {
+            track.applyConstraints(videoConstraints);
+        }
+    });
+}
+
+function showFrontCamera() {
+    var videoConstraints = {
+        facingMode: { exact: 'user' }
+    };
+
+    originalStream.getTracks().forEach(function(track) {
+        if(track.kind === 'video') {
+            track.applyConstraints(videoConstraints);
+        }
+    });
+}
+
+function showRearCamera() {
+    var videoConstraints = {
+        facingMode: { exact: 'environment' }
+    };
+
+    originalStream.getTracks().forEach(function(track) {
+        if(track.kind === 'video') {
+            track.applyConstraints(videoConstraints);
+        }
+    });
+}
+</pre>
+            </section>
+
+            <section class="experiment" id="rear-or-front-camera">
+                <h2>
+                    <a href="#rear-or-front-camera">Capture Rear or Front Camera</a>
+                </h2>
+
+                <pre class="sh_javascript">
+// supported only in firefox 43+
+
+#1 capture rear camera
+var videoConstraints = {
+    facingMode: { exact: 'environment' }
+};
+navigator.mozGetUserMedia({ video: videoConstraints }, onSuccessCallback, onFailureCallback);
+
+#1 capture front camera
+var videoConstraints = {
+    facingMode: { exact: 'user' }
+};
+navigator.mozGetUserMedia({ video: videoConstraints }, onSuccessCallback, onFailureCallback);
+</pre>
+            </section>
+
+            <section class="experiment" id="select-secondary-camera">
+                <h2>
+                    <a href="#select-secondary-camera">Select Secondary (2nd) Camera</a>
+                </h2>
+
+                <pre class="sh_javascript">
+function selectSecondaryCamera() {
+    // link: https://cdn.webrtc-experiment.com/DetectRTC/checkDeviceSupport.js
+
+    // LIVE Demo for this function
+    // <a href="https://jsfiddle.net/cf90az9q/" target="_blank">https://jsfiddle.net/cf90az9q/</a>
+
+    checkDeviceSupport(function() {
+        var secondDevice = videoInputDevices[1];
+        if(!secondDevice) return alert('Secondary webcam is NOT available.');
+
+        var videoConstraints = {
+            deviceId: secondDevice.deviceId
+        };
+
+        if(!!navigator.webkitGetUserMedia) {
+            videoConstraints = {
+                mandatory: {},
+                optional: [{
+                    sourceId: secondDevice.deviceId
+                }]
+            }
+        }
+
+        navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+        navigator.getUserMedia({ video: videoConstraints }, function(stream) {
+            // 
+        }, function(error) {
+            alert(JSON.stringify(error));
+        });
+    });
+}
+</pre>
+            </section>
+		
+            <section class="experiment">
+                <ol>
+                    <li>
+						Maximum peer connections limit is 256.
+					</li>
+					
+					<li>
+						Opus codec minimum bandwidth is 6kbit/s
+					</li>
+					
+					<li>
+						Opus codec maximum bandwidth is 510kbits/s
+					</li>
+					
+					<li>
+						Vp8 codec minimum bandwidth is 100kbits/s
+					</li>
+					
+					<li>
+						Vp8 codec maximum bandwidth is 2000+ kbits/s
+						
+						<ol>
+							<li>720p at 30 FPS causes 1.0-to-2.0 Mbps bandwidth usage</li>
+							<li>360p at 30 FPS causes 0.5-to-1.0 Mbps bandwidth usage</li>
+							<li>180p at 30 FPS causes 0.1-to-0.5 Mbps bandwidth usage</li>
+						</ol>
+					</li>
+					
+					<li>
+						Maximum bandwidth used by each RTP port is 1MB.
+					</li>
+					
+					<li>
+						Only one media source i.e. "APM" is permitted.
+					</li>
+					
+					<li>
+						WebRTC currently uses UDP for RTP transmission.
+					</li>
+					
+					<li>
+						Maximum video bitrate on chrome is about 2Mb/s (i.e. 2000kbits/s).
+					</li>
+					
+					<li>
+						Minimum video bitrate on chrome is .05Mb/s (i.e. 50kbits/s).
+					</li>
+					
+					<li>
+						Starting video bitrate on chrome is .3Mb/s (i.e. 300kbits/s).
+					</li>
+					
+					<li>
+						Each RTP port is using 1 MB bandwidth. It means that 4 MB bandwidth is acquired by each peer.
+					</li>
+					
+					<li>
+						Maximum external video condecs can be used on chrome is 8.
+					</li>
+					
+					<li>
+						Maximum simulcast streams limit is <a href="https://code.google.com/p/chromium/codesearch#chromium/src/third_party/webrtc/common_types.h&sq=package:chromium&rcl=1377455834&l=455" target="_blank">4</a>.
+					</li>
+					
+					<li>
+						In peer-to-server connection; you can catch DTLS/SRTP (i.e. RTP/RTCP) pacekts as binary-stream.
+					</li>
+					
+					<li>
+						"peer.removeStream" Removes a stream from the PeerConnection. If the stream parameter is absent, removes the stream that was most recently added to the PeerConnection.
+					</li>
+					
+					<li>
+						Opus uses both mono and stereo codecs. Mono bitrate for opus on chrome is 32000 and stereo bitrate is 64000.
+					</li>
+					
+					<li>
+						According to draft "draft-spittka-payload-rtp-opus-03", "Opus bitrate should be in the range between 6000 and 510000", that's why opus min bitrate on chrome is 6000 and max bitrate is 510000.
+					</li>
+					
+					<li>
+						SCTP pacekt max size is <a href="https://code.google.com/p/chromium/codesearch#chromium/src/third_party/libjingle/source/talk/media/sctp/sctpdataengine.cc&l=52" target="_blank">1280</a>.
+					</li>
+					
+					<li>
+						Data max bandwidth is 30720 bps.
+					</li>
+					
+					<li>
+						You can set following resolutions (min/max width/height):
+						<ol>
+							<li>1920:1080</li>
+							<li>1280:720</li>
+							<li>960:720</li>
+							<li>640:360</li>
+							<li>640:480</li>
+							<li>320:240</li>
+							<li>320:180</li>
+						</ol>
+						<a href="https://code.google.com/p/chromium/codesearch#chromium/src/third_party/libjingle/source/talk/media/webrtc/webrtcvideoengine.cc&sq=package:chromium&type=cs&l=822&q=kVideoFormats" target="_blank">Maybe</a>:
+						<ol>
+							<li>1280:800</li>
+							<li>1280:720</li>
+							<li>960:600</li>
+							<li>960:540</li>
+							<li>640:400</li>
+							<li>640:360</li>
+							<li>640:480</li>
+							<li>480:300</li>
+							<li>480:270</li>
+							<li>480:360</li>
+							<li>320:200</li>
+							<li>320:180</li>
+							<li>320:240</li>
+							<li>240:150</li>
+							<li>240:135</li>
+							<li>240:180</li>
+							<li>160:100</li>
+							<li>160:90</li>
+							<li>160:120</li>
+						</ol>
+					</li>
+					
+					<li>
+						Following buffer-sizes are allowed (used in RecordRTC):
+						<ol>
+							<li>256</li>
+							<li>512</li>
+							<li>1024</li>
+							<li>2048</li>
+							<li>4096</li>
+							<li>8192</li>
+							<li>16384</li>
+						</ol>
+					</li>
+					
+					<li>
+						SampleRate must be in the range 22050 to 96000 (used in RecordRTC).
+					</li>
+					
+					<li>
+						Possible media m-lines:
+						
+						<ol>
+							<li>m=audio</li>
+							<li>m=video</li>
+							<li>m=application</li>
+							<li>m=data</li>
+							<li>m=control</li>
+							<li>m=radius</li>
+							<li>m=tacacs</li>
+							<li>m=diameter</li>
+							<li>m=NAS_L2TP</li>
+							<li>m=NAS_LOGIN</li>
+							<li>m=NAS_NONE</li>
+							<li>m=image</li>
+						</ol>
+					</li>
+					
+					<!--
+					<li>
+						<pre>
+static const CodecPref kCodecPrefs[] = {
+  { "OPUS",   48000,  2, 111, true },
+  { "ISAC",   16000,  1, 103, true },
+  { "ISAC",   32000,  1, 104, true },
+  { "CELT",   32000,  1, 109, true },
+  { "CELT",   32000,  2, 110, true },
+  { "G722",   16000,  1, 9,   false },
+  { "ILBC",   8000,   1, 102, false },
+  { "PCMU",   8000,   1, 0,   false },
+  { "PCMA",   8000,   1, 8,   false },
+  { "CN",     48000,  1, 107, false },
+  { "CN",     32000,  1, 106, false },
+  { "CN",     16000,  1, 105, false },
+  { "CN",     8000,   1, 13,  false },
+  { "red",    8000,   1, 127, false },
+  { "telephone-event", 8000, 1, 126, false },
+};
+</pre>
+					</li>
+					
+					<li>
+						Nack max pacekts limit is 250. This value is equivalent to 5 seconds of audio data at 20 ms per packet.
+					</li>
+					
+					<li>
+					
+					<pre>
+// We want to avoid IP fragmentation.
+static const size_t kDataMaxRtpPacketLen = 1200U;
+</pre>
+					
+					</li>
+					
+					<li>
+					<pre>
+https://github.com/mozilla/mozilla-central/blob/master/media/webrtc/signaling/test/signaling_unittests.cpp#L1854
+// NOTE: the actual SDP that Chrome sends at the moment
+    // doesn't indicate two channels. I've amended their SDP
+    // here, under the assumption that the constraints
+    // described in draft-spittka-payload-rtp-opus will
+    // eventually be implemented by Google.
+</pre>
+					</li>
+					
+					-->
+                </ol>
+            </section>
+			
+			<section class="experiment">
+                <h2 class="header">Suggestions</h2>
+                <ol>
+                    <li>
+                        If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a> or <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/DataChannel" target="_blank">DataChannel.js</a> libraries.
+                    </li>
+                </ol>
+            </section>
+        
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+        </article>
+
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

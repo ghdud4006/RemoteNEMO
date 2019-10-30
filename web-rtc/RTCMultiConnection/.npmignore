@@ -1,0 +1,13 @@
+# ignore everything
+*
+
+# but not these files...
+!dist/RTCMultiConnection.js
+!dist/RTCMultiConnection.min.js
+!dev/*
+!package.json
+!logs.json
+!config.json
+!npm-test.js
+!server.js
+!README.md

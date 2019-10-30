@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>NEMOMirroring</title>
+
+        <script>
+            if(!location.hash.replace('#', '').length) {
+                location.href = location.href.split('#')[0] + '#' + parseInt(Math.random() * 100).toString();
+                location.reload();
+            }
+        </script>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+        <link rel="stylesheet" href="style.css">
+
+        <style>
+            video {
+                -moz-transition: all 1s ease;
+                -ms-transition: all 1s ease;
+
+                -o-transition: all 1s ease;
+                -webkit-transition: all 1s ease;
+                transition: all 1s ease;
+                vertical-align: top;
+                width: 100%;
+            }
+
+            input {
+                border: 1px solid #d9d9d9;
+                border-radius: 1px;
+                font-size: 2em;
+                margin: .2em;
+                width: 30%;
+            }
+
+            select {
+                border: 1px solid #d9d9d9;
+                border-radius: 1px;
+                height: 50px;
+                margin-left: 1em;
+                margin-right: -12px;
+                padding: 1.1em;
+                vertical-align: 6px;
+                width: 18%;
+            }
+
+            .setup {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                font-size: 1.5em;
+                margin-bottom: 20px;
+                margin-top: 20px;
+                border-radius: 5px;
+            }
+
+            p { padding: 1em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+
+        <!-- scripts used for NEMOMirroring -->
+        <script src="socket.io.js"> </script> <!--Share Your Screen-->
+        <script src="conference.js"> </script> <!--showMessage-->
+    </head>
+
+    <body>
+        <article>
+            <header style="text-align: center; margin: 1em 0 1em 0">
+                <h1>
+                    NEMOMirroring
+                </h1>
+            </header>
+
+            <section id="logs-message" class="experiment" style="width: 100%;display: none;text-align: center; font-size: 1.5em;line-height: 2;color: red;">WebRTC getDisplayMedia API.</section>
+
+            <section class="experiment">
+                <section class="hide-after-join" style="text-align: center;">                    
+                    <input type="text" id="room-name" placeholder="Enter " style="width: 100%; margin-left: 0px; text-align: center; display: none;">
+                    <button id="share-screen" class="setup">Share Your Screen</button>
+                </section>
+
+                <!-- local/remote videos container -->
+                <div id="videos-container"></div>
+
+                <section id="cancel" style="display: none; text-align: center;"></section>
+            </section>
+
+            <script>
+
+                function showMessage(error, color) {
+                    var errorMessage = document.querySelector('#logs-message');
+                    errorMessage.style.color = color || 'red';
+                    errorMessage.innerHTML = error;
+                    errorMessage.style.display = 'block';
+                }
+
+                function getDisplayMediaError(error) {
+                    if (location.protocol === 'http:') {
+                        showMessage('Please test this WebRTC experiment on HTTPS.');
+                    } else {
+                        showMessage(error.toString());
+                    }
+                }
+
+                //This is core code!
+                function captureUserMedia(callback) {
+                    var video = document.createElement('video');
+                    video.muted = true;
+                    video.volume = 0;
+                    try {
+                        video.setAttributeNode(document.createAttribute('autoplay'));
+                        video.setAttributeNode(document.createAttribute('playsinline'));
+                        video.setAttributeNode(document.createAttribute('controls'));
+                    } catch (e) {
+                        video.setAttribute('autoplay', true);
+                        video.setAttribute('playsinline', true);
+                        video.setAttribute('controls', true);
+                    }
+
+                    if(navigator.getDisplayMedia || navigator.mediaDevices.getDisplayMedia) {
+                        function onGettingSteam(stream) {
+                            video.srcObject = stream;
+                            videosContainer.insertBefore(video, videosContainer.firstChild);
+
+                            addStreamStopListener(stream, function() {
+                                location.reload();
+                            });
+
+                            callback && callback();
+                            video.style[navigator.mozGetUserMedia ? 'transform' : '-webkit-transform']
+
+                            addStreamStopListener(stream, function() {
+                                location.reload();
+                            });
+                            
+                            showMessage('Successfully Connected', 'blue');
+                            showCancel();
+                            document.getElementById('cancelButton').onclick = function() {
+                                location.reload();
+                            };
+                            document.querySelector('.hide-after-join').style.display = 'none';
+                        }
+
+                        if(navigator.mediaDevices.getDisplayMedia) {
+                            navigator.mediaDevices.getDisplayMedia({video: true}).then(stream => {
+                                onGettingSteam(stream);
+                            }, getDisplayMediaError).catch(getDisplayMediaError);
+                        }
+                        else if(navigator.getDisplayMedia) {
+                            navigator.getDisplayMedia({video: true}).then(stream => {
+                                onGettingSteam(stream);
+                            }, getDisplayMediaError).catch(getDisplayMediaError);
+                        }
+                    }
+                    else {
+                        if (DetectRTC.browser.name === 'Chrome') {
+                            if (DetectRTC.browser.version == 71) {
+                                showMessage('Please enable "Experimental WebPlatform" flag via chrome://flags.');
+                            } else if (DetectRTC.browser.version < 71) {
+                                showMessage('Please upgrade your Chrome browser.');
+                            } else {
+                                showMessage('Please make sure that you are not using Chrome on iOS.');
+                            }
+                        }
+
+                        if (DetectRTC.browser.name === 'Firefox') {
+                            showMessage('Please upgrade your Firefox browser.');
+                        }
+
+                        if (DetectRTC.browser.name === 'Edge') {
+                            showMessage('Please upgrade your Edge browser.');
+                        }
+
+                        if (DetectRTC.browser.name === 'Safari') {
+                            showMessage('Safari does NOT supports getDisplayMedia API yet.');
+                        }
+                    }
+                }
+
+                function showCancel() {
+                    var cancelToken = document.getElementById('cancel');
+                    cancelToken.innerHTML = '<button id="cancelButton" class="setup">Cancel Your Screen</button>'; // add canceling
+                    cancelToken.style.display = 'block';
+                }
+
+                showMessage('Click \"Share Your Screen\" Button');
+
+                /* UI specific */
+                var videosContainer = document.getElementById("videos-container") || document.body;
+
+                document.getElementById('share-screen').onclick = function() {
+                    captureUserMedia(function() {
+                    });
+                };        
+            </script>
+        </article>
+    </body>
+</html>

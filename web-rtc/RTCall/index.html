@@ -1,0 +1,400 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall
+-->
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>RTCall.js — A library for Browser-to-Browser audio-only calling | Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="https://www.webrtc-experiment.com/style.css">
+        
+        <style>
+            audio {
+                -moz-transition: all 1s ease;
+                -ms-transition: all 1s ease;
+                
+                -o-transition: all 1s ease;
+                -webkit-transition: all 1s ease;
+                transition: all 1s ease;
+                vertical-align: top;
+            }
+
+            input {
+                border: 1px solid #d9d9d9;
+                border-radius: 1px;
+                font-size: 2em;
+                margin: .2em;
+                width: 30%;
+            }
+
+            .setup {
+                border-bottom-left-radius: 0;
+                border-top-left-radius: 0;
+                font-size: 102%;
+                height: 47px;
+                margin-left: -9px;
+                margin-top: 8px;
+                position: absolute;
+            }
+
+            p { padding: 1em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+        </style>
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+        
+        <!-- scripts used for broadcasting -->
+        <script src="https://www.webrtc-experiment.com/RTCall.js"> </script>
+        <script src="https://www.webrtc-experiment.com/socket.io.js"> </script>
+    </head>
+
+    <body>
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall.js</a>
+                    — A library for Browser-to-Browser audio-only calling
+                </h1>            
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+
+            <div class="github-stargazers"></div>
+        
+            <!-- just copy this <section> and next script -->
+            <section class="experiment" style="padding: 3em 0;">
+                <div id="customers-list"></div>
+                <div id="audios-container"></div>
+                <div id="call-admin-box" style="display: none;">
+                    <h2>Want to call admin?</h2>
+                    <button id="call-admin">Call Admin</button>
+                </div>
+            </section>
+        
+            <script>
+                // Muaz Khan     - https://github.com/muaz-khan
+                // MIT License   - https://www.webrtc-experiment.com/licence/
+                // Documentation - https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall
+
+                function $(selector) {
+                    return document.querySelector(selector);
+                }
+
+                HTMLElement.prototype.hide = function() {
+                    this.style.display = 'none';
+                };
+
+                HTMLElement.prototype.show = function(block) {
+                    this.style.display = block || 'inline-block';
+                };
+
+                function getRandomNumber() {
+                    return Math.round(Math.random() * 60535) + 5000;
+                }
+            </script>
+
+            <!-- if no admin; first person is considered "admin"! -->
+            <script>
+                function initAdmin() {
+                    var parentNode = document.querySelector('.experiment');
+                    var h2 = document.createElement('h2');
+                    h2.innerHTML = 'You\'re an admin! <a href="' + location.href.replace('?admin=true', '') + '" target="_blank">Want to be a customer?</a><br /><br />';
+                    parentNode.insertBefore(h2, parentNode.firstChild);
+
+                    var rtcall = new RTCall();
+                    rtcall.callerid = 'admin';
+                    rtcall.admin = true;
+
+                    rtcall.oncustomer = function(customer) {
+                        customersList = $('#customers-list');
+                        div = document.createElement('div');
+                        div.className = 'customer-div';
+
+                        callButton = document.createElement('button');
+                        infoArea = document.createElement('span');
+
+                        callButton.innerHTML = 'Call';
+                        callButton.onclick = function() {
+                            rtcall.call(customer.callerid);
+
+                            customersList.hide();
+                            $('#call-admin-box').hide();
+                        };
+
+                        infoArea.innerHTML = customer.callerid + ' is online.';
+
+                        div.appendChild(callButton);
+                        div.appendChild(infoArea);
+                        customersList.appendChild(div, customersList.firstChild);
+                    };
+
+                    rtcall.onincomingcall = function(caller) {
+                        onincomingcall(caller, rtcall);
+                    };
+
+                    rtcall.onstream = onstream;
+                    rtcall.init();
+                }
+            </script>
+
+            <!-- all other persons are "visitors" or "customers"! -->
+            <script>
+                function initCustomer() {
+                    var parentNode = document.querySelector('.experiment');
+                    var h2 = document.createElement('h2');
+                    h2.innerHTML = 'You\'re a customer! <a href="?admin=true" target="_blank">Want to be an admin?</a><br /><br />';
+                    parentNode.insertBefore(h2, parentNode.firstChild);
+
+                    var rtcall = new RTCall();
+                    rtcall.callerid = 'customer:' + getRandomNumber();
+                    rtcall.admin = false; // because he is a customer
+
+                    rtcall.onincomingcall = function(caller) {
+                        onincomingcall(caller, rtcall);
+                    };
+
+                    rtcall.onstream = onstream;
+                    rtcall.init();
+
+                    // customer can call admin too
+                    $('#call-admin-box').show();
+                    $('#call-admin').onclick = function() {
+                        rtcall.call('admin');
+                        $('#call-admin-box').hide();
+                    };
+                }
+            </script>
+
+            <script>
+            // this function is fired twice
+            // once for admin
+            // once for customer
+            // that's why separated here
+                function onstream(e) {
+                    div = document.createElement('div');
+                    div.innerHTML = '<h2>Audio from ' + e.callerid + '</h2>';
+
+                    audio = e.audio;
+                    audio.play();
+
+                    div.appendChild(audio);
+
+                    audioContainer = $('#audios-container');
+                    audioContainer.appendChild(div, audioContainer.firstChild);
+                }
+
+            // admin can call any customer
+            // customers can call admin too
+            // this function is used twice
+            // that's why separated here
+
+                function onincomingcall(caller, rtcall) {
+                    customersList = $('#customers-list');
+                    div = document.createElement('div');
+                    div.className = 'customer-div';
+
+                    receiveButton = document.createElement('button');
+                    infoArea = document.createElement('span');
+
+                    receiveButton.innerHTML = 'Receive';
+                    receiveButton.onclick = function() {
+                        rtcall.receive(caller.receiverid);
+
+                        customersList.hide();
+                        $('#call-admin-box').hide();
+                    };
+
+                    infoArea.innerHTML = caller.callerid + ' is calling you.';
+
+                    div.appendChild(receiveButton);
+                    div.appendChild(infoArea);
+                    customersList.appendChild(div, customersList.firstChild);
+                }
+            </script>
+
+            <!-- checking presence of the admin -->
+            <script>
+                (function() {
+                    var params = { },
+                        r = /([^&=]+)=?([^&]*)/g ;
+
+                    function d(s) {
+                        return decodeURIComponent(s.replace( /\+/g , ' '));
+                    }
+
+                    var match, search = window.location.search.toLowerCase();
+                    while (match = r.exec(search.substring(1)))
+                        params[d(match[1])] = d(match[2]);
+
+                    window.params = params;
+                })();
+
+                if (window.params.admin) initAdmin();
+                else initCustomer();
+            </script>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+            
+            <section class="experiment">
+                <h2 class="header">
+                    How to make audio-only calls using <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall</a>?
+                </h2>
+				
+                <pre>
+// https://www.webrtc-experiment.com/RTCall.js
+
+var call = new RTCall();
+
+// "onincomingcall" fires each time if someone calls you
+call.onincomingcall = function(caller) {
+   call.receive(caller.receiverid);
+};
+
+// "oncustomer" is fired only for admin
+// you can set admin like this:
+// call.admin = true;
+call.oncustomer = function(customer) {
+   call.call(customer.callerid);
+};
+
+// "onstream" returns you remote media stream
+call.onstream = function(e) {
+   // e.stream   ---- remote media stream object
+   // e.callerid ---- id of the remote person
+   
+   audio = e.audio;
+   audio.play(); // "e.audio" object is paused by default
+   document.documentElement.appendChild(audio);
+};
+
+// initializing "RTCall" object
+call.init();
+
+// customers can call "admin" using his caller-id
+call.call('admin-caller-id');
+</pre>
+                
+            </section>
+			
+            <section class="experiment">
+                <h2 class="header">
+                    How to use custom signaling channel?
+                </h2>
+				
+                <p>
+                    By default, <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" target="_blank">RTCall</a> is using WebSockets for signaling. <a href="https://github.com/muaz-khan/WebRTC-Experiment/blob/master/Signaling.md#signaling-for-rtcmulticonnection-v14-and-earlier-releases" target="_blank">You can use</a> socket.io, WebSync or services like firebase, pubnub, pusher etc.
+                </p>
+				
+                <pre>
+call.openSignalingChannel = function(config) {   
+   var SIGNALING_SERVER = 'https://socketio-over-nodejs2.herokuapp.com:443/';
+   var channel = config.channel || this.channel;
+   var sender = Math.round(Math.random() * 60535) + 5000;
+
+   io.connect(SIGNALING_SERVER).emit('new-channel', {
+      channel: channel,
+      sender : sender
+   });
+
+   var socket = io.connect(SIGNALING_SERVER + channel);
+   socket.channel = channel;
+
+   socket.on('connect', function () {
+      if (config.callback) config.callback(socket);
+   });
+
+   socket.send = function (message) {
+        socket.emit('message', {
+            sender: sender,
+            data  : message
+        });
+    };
+
+   socket.on('message', config.onmessage);
+};
+</pre>
+
+                <p>Or Firebase:</p>
+				
+                <pre>
+call.openSignalingChannel = function (config) {
+    var channel = config.channel || this.channel;
+
+    var socket = new Firebase('https://webrtc.firebaseIO.com/' + channel);
+    socket.on('child_added', function (snap) {
+        var data = snap.val();
+
+        config.onmessage(data);
+
+        // we want socket.io behavior; 
+        // that's why data is removed from firebase servers 
+        // as soon as it is received
+        // data.userid != userid && 
+        if (data.userid != userid) snap.ref().remove();
+    });
+
+    // must override "send"
+    socket.send = function (data) {
+        socket.push(data);
+    };
+
+    config.callback(socket);
+};
+</pre>
+				
+            </section>
+			
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        </article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/RTCall" class="fork-right"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://www.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

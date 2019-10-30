@@ -1,0 +1,350 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+
+<head>
+    <title>How to share tab using tabCapture APIs? ® Muaz Khan</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+    <meta name="author" content="Muaz Khan">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Inconsolata);
+
+        html {
+            background: #eee;
+        }
+
+        body {
+            font-family: "Inconsolata", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", monospace;
+            font-size: 1.2em;
+            line-height: 1.2em;
+            margin: 0;
+        }
+
+        article, footer {
+            display: block;
+            max-width: 900px;
+            min-width: 360px;
+            width: 80%;
+        }
+
+        article {
+            background: #fff;
+            border: 1px solid;
+            border-color: #ddd #aaa #aaa #ddd;
+            margin: 2.5em auto 0 auto;
+            padding: 2em;
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        article p:first-of-type {
+            margin-top: 1.6em;
+        }
+
+        article p:last-child {
+            margin-bottom: 0;
+        }
+
+        footer {
+            margin: 0 auto 2em auto;
+            text-align: center;
+        }
+
+            footer a {
+                color: #666;
+                font-size: inherit;
+                padding: 1em;
+                text-decoration: none;
+                text-shadow: 0 1px 1px #fff;
+            }
+
+                footer a:hover, footer a:focus {
+                    color: #111;
+                }
+
+        h1, h2 {
+            border-bottom: 1px solid black;
+            display: inline;
+            font-weight: normal;
+            line-height: 36px;
+            padding: 0 0 3px 0;
+        }
+
+        a {
+            color: #2844FA;
+            text-decoration: none;
+        }
+
+            a:hover, a:focus {
+                color: #1B29A4;
+            }
+
+            a:active {
+                color: #000;
+            }
+
+        :-moz-any-link:focus {
+            border: 0;
+            color: #000;
+        }
+
+        ::selection {
+            background: #ccc;
+        }
+
+        ::-moz-selection {
+            background: #ccc;
+        }
+
+        button, input[type=button] {
+            -moz-border-radius: 3px;
+            -moz-transition: none;
+            -webkit-transition: none;
+            background: #0370ea;
+            background: -moz-linear-gradient(top, #008dfd 0, #0370ea 100%);
+            background: -webkit-linear-gradient(top, #008dfd 0, #0370ea 100%);
+            border: 1px solid #076bd2;
+            border-radius: 3px;
+            color: #fff;
+            display: inline-block;
+            font-family: inherit;
+            font-size: .8em;
+            line-height: 1.3;
+            padding: 5px 12px;
+            text-align: center;
+            text-shadow: 1px 1px 1px #076bd2;
+            font-size: 1.5em;
+        }
+
+            button:hover, input[type=button]:hover {
+                background: rgb(9, 147, 240);
+            }
+
+            button:active, input[type=button]:active {
+                background: rgb(10, 118, 190);
+            }
+
+            button[disabled], input[type=button][disabled] {
+                background: none;
+                border: 1px solid rgb(187, 181, 181);
+                color: gray;
+                text-shadow: none;
+            }
+
+        strong {
+            color: rgb(204, 14, 14);
+            font-family: inherit;
+            font-weight: normal;
+        }
+
+        tr, td, th {
+            vertical-align: top;
+            padding: .7em 1.4em;
+            border-top: 1px dotted #BBA9A9;
+            border-right: 1px dotted #BBA9A9;
+        }
+
+        table {
+            width: 100%;
+        }
+
+        blockquote {
+            margin: 1em 0;
+        }
+    </style>
+    <!-- for HTML5 el styling -->
+    <script>
+        document.createElement('article');
+        document.createElement('footer');
+    </script>
+</head>
+
+<body>
+    <article>
+        <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
+        <h1>How to share tab using tabCapture APIs?
+        </h1>
+        <p>
+            <span>Copyright © 2013</span>
+            <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a><span>&lt;</span><a href="http://twitter.com/muazkh" target="_blank">@muazkh</a><span>&gt;.</span>
+        </p>
+
+        <section class="plusone-gplus">
+            <div class="g-plusone" data-href="https://www.webrtc-experiment.com/"></div>
+        </section>
+
+        If you're newcomer, newbie or beginner; you're suggested to try <a href="http://bit.ly/RTCMultiConnection-Documentation" target="_blank">RTCMultiConnection.js</a> or <a href="http://bit.ly/DataChannel-Documentation" target="_blank">DataChannel.js</a> libraries.
+
+        <br />
+        <br />
+
+        <table>
+            <tr>
+                <td>If you <a href="http://code.google.com/p/muazkh/downloads/list">download</a> extension, you can see a file <a href="/webrtc-extension/broadcaster.js">broadcaster.js</a>. This file do all the stuff needed to interact with Google Chrome extension APIs. Also, this file uses <strong>tabCapture</strong> APIs to capture the tab.
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <blockquote style="padding: 0 .2em;">
+                        <img src="/images/capture-tab-using-tabCapture-APIs.png" />
+                    </blockquote>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Now, you've access to LocalMediaStream object. <strong>Do whatever you want!</strong> So easy!!!!!
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <a href="/webrtc-extension/manifest.json">manifest.json</a> file looks like this:
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <pre>
+...
+"background": {
+    "scripts": ["<a href="/webrtc-extension/socket.io.js">socket.io.js</a>", 
+                "<a href="/webrtc-extension/RTCPeerConnection-v1.5.js">RTCPeerConnection-v1.5.js</a>", 
+                "<a href="/webrtc-extension/broadcast.js">broadcast.js</a>", 
+                "<a href="/webrtc-extension/broadcaster.js">broadcaster.js</a>"],
+    "persistent": false
+},
+...
+"permissions": [
+    "<strong>tabCapture</strong>"
+],
+...
+</pre>
+                </td>
+            </tr>
+
+            <tr>
+                <td>You can see permission for <strong>tabCapture</strong> APIs.
+                </td>
+            </tr>
+        </table>
+
+        <br />
+        <br />
+
+        <h2>How to use your own socket.io implementation?</h2>
+        <br />
+        <br />
+        This tab sharing experiment is using socket.io implementation over pubnub.
+         <br />
+        <br />
+        <ol>
+            <li>
+                <a href="/webrtc-extension/broadcast.js" target="_blank">broadcast.js</a>
+            </li>
+            <li>
+                <a href="/screen-broadcast/screen-viewer.js" target="_blank">screen-viewer.js</a>
+            </li>
+        </ol>
+        <br />
+        <br />
+        <h2><a href="/webrtc-extension/broadcast.js" target="_blank">broadcast.js</a> — Line 181</h2>
+
+        <br />
+        <br />
+
+        At line <strong>181</strong>, you can see <code>openSocket</code> method:
+
+        <pre>
+openSocket: function(config) {
+    var socket = io.connect('https://pubsub.pubnub.com/webrtc-rtcweb', {
+        publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
+        subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+        channel: config.channel || 'webrtc-tab-sharing',
+        ssl: true
+    });
+    config.onopen && socket.on('connect', config.onopen);
+    config.onmessage && socket.on('message', config.onmessage);
+    return socket;
+}
+        </pre>
+
+        <br />
+        <br />
+
+        <h2><a href="/screen-broadcast/screen-viewer.js" target="_blank">screen-viewer.js</a> — Line 185</h2>
+
+        <br />
+        <br />
+
+        At line <strong>185</strong>, you can see <strong>same</strong> <code>openSocket</code> method:
+
+        <pre>
+openSocket: function(config) {
+    var socket = io.connect('https://pubsub.pubnub.com/webrtc-rtcweb', {
+        publish_key: 'pub-f986077a-73bd-4c28-8e50-2e44076a84e0',
+        subscribe_key: 'sub-b8f4c07a-352e-11e2-bb9d-c7df1d04ae4a',
+        channel: config.channel || 'webrtc-tab-sharing',
+        ssl: true
+    });
+    config.onopen && socket.on('connect', config.onopen);
+    config.onmessage && socket.on('message', config.onmessage);
+    return socket;
+}
+        </pre>
+
+        <br />
+        <br />
+
+        <h2>To use your own socket.io implementation...</h2>
+        <br />
+        <br />
+        Replace <code>openSocket</code> method's code in <strong>both files</strong> with:
+
+        <pre>
+openSocket: function (config) {
+    var socket = io.connect('http://your-site:8888');
+    socket.channel = config.channel || 'webrtc-tab-sharing';
+    socket.on('message', config.onmessage);
+		
+    socket.send = function (data) {
+        socket.emit('message', data);
+    };
+
+    if (config.onopen) setTimeout(config.onopen, 1);
+    return socket;
+}
+        </pre>
+
+        Now, <strong>your own socket.io will be used for signaling!</strong>
+
+        <br />
+        <br />
+        <table style="width: 100%;">
+            <tr>
+                <td>
+                    <div>
+                        <textarea id="message" style="height: 8em; margin: .2em; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                    </div>
+                    <button id="send-message" style="font-size: 1em;">Send Message</button>
+                </td>
+            </tr>
+        </table>
+    </article>
+    <footer>
+        <p>
+            <a href="https://www.webrtc-experiment.com/" target="_blank">WebRTC Experiments!</a>©
+                <a href="https://plus.google.com/100325991024054712503" rel="author" target="_blank">Muaz Khan</a>, <span>2013 </span>»
+                <a href="mailto:muazkh@gmail.com" target="_blank">Email</a>»
+                <a href="http://twitter.com/muazkh" target="_blank">@muazkh</a>»
+                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+        </p>
+    </footer>
+    <script src="https://bit.ly/commonjs"> </script>
+</body>
+</html>

@@ -1,0 +1,301 @@
+﻿<!--
+> Muaz Khan     - https://github.com/muaz-khan 
+> MIT License   - https://www.webrtc-experiment.com/licence/
+> Experiments   - https://github.com/muaz-khan/WebRTC-Experiment
+-->
+
+<!DOCTYPE html>
+<html id="home" lang="en">
+
+    <head>
+        <title>How to write video-conferencing application using WebRTC? | Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+        <style>
+            p { padding: .8em; }
+
+            li {
+                border-bottom: 1px solid rgb(189, 189, 189);
+                border-left: 1px solid rgb(189, 189, 189);
+                padding: .5em;
+            }
+
+            td {
+                border: 0;
+                padding: 0;
+            }
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_main.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_javascript.min.js"> </script>
+        <script type="text/javascript" src="https://cdn.webrtc-experiment.com/syntax/sh_html.min.js"> </script>
+        <link type="text/css" rel="stylesheet" href="https://cdn.webrtc-experiment.com/syntax/sh_style.css">
+		
+    </head>
+
+    <body onload="sh_highlightDocument();">
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    How to write video-conferencing application using <a href="https://www.webrtc-experiment.com/">WebRTC</a>?
+                </h1>
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                        
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                        
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+				
+            <div class="github-stargazers"></div>
+
+            <table style="width: 100%;margin-top: 30px;">
+                <tr>
+                    <td>If you're newcomer, newbie or beginner; you're suggested to try <a href="https://github.com/muaz-khan/RTCMultiConnection" target="_blank">RTCMultiConnection.js</a>.
+                    </td>
+                </tr>
+            </table>
+
+            <br />
+            <br />
+            <h2>
+                How to video conferencing?
+            </h2>
+
+            <ol>
+                <li>Open multiple peer connections to support multi-users connectivity</li>
+            </ol>
+
+            It is called peer-to-peer model; where all peers are interconnected.
+		
+            <br />
+            <br />
+
+            <h2>You should</h2>
+
+            <ol>
+                <li>create two reusable functions: one for creating offer and other for creating answer. These will be called/invoked many times on each new room participation request.</li>
+                <li>create a function like "openSignalingChannel" that should open new socket on each invocation.</li>
+                <li>uniquely identify the current user</li>
+            </ol>
+
+            <p>It is preferred to use socket.io because it supports multiplexing.</p>
+
+            <h2>Those functions</h2>
+
+            <p>On invocation; those functions should:</p>
+
+            <ol>
+                <li>create a new peer connection</li>
+                <li>create offer or answer session-descriptions accordingly</li>
+            </ol>
+
+
+            <h2>Then, on page load</h2>
+            <p>On page load: call "openSignalingChannel" method. This time your "openSignalingChannel" must open "default-channel" that must be active all the time. That default channel will be used to:</p>
+
+            <ol>
+                <li>show list of all active rooms</li>
+                <li>allow new users to send "participation requests"</li>
+            </ol>
+
+            <h2>For room creator</h2>
+
+            <p>If someone creates new room; you should continuously transmit his room details over the "default-channel".</p>
+
+            <p>You can use transmission-interval i.e. 3 or 5 seconds. It should be your own preference.</p>
+
+            <h2>For room participant</h2>
+
+            <p>Send "participation request" over same "default-channel".</p>
+
+            <p>You should also send participant's unique id in the "participation request" message.</p>
+
+            <p>Call "openSignalingChannel" method to create new socket where you should use his unique id as channel name/label.</p>
+
+            <p>That newly created socket will be used to get offer-sdp from room owner. It will also be used to get ICE gathered by room owner.</p>
+
+            <h2>As soon as room owner will receive participation-request</h2>
+
+            <p>You should create new socket using "openSignalingChannel" method where you should use participant's unique id for channel name/label. Otherwise, use random number that must be passed along with "participation request" message.</p>
+
+            <p>That new socket will be used to exchange SDP/ICE between room owner and that participant.</p>
+
+            <h2>On the room owner's side</h2>
+
+            <p>You should quickly create a new peer connection.</p>
+            <p>You should also quickly create "offer" because room-owner is expected to play the role of "offerer" for each new participant.</p>
+            <p>As soon as offer is created; you should pass that "offer sdp" over same socket that is being used to exchange SDP/ICE between room owner and participant.</p>
+
+            <h2>On the participant's side</h2>
+            <p>Set remote descriptions using offer sdp sent by room owner.</p>
+            <p>Create answer. Participant will always play role of "answerer" on joining new room.</p>
+            <p>As soon as answer is created; you should pass that "answer sdp" over same socket that is being used to exchange SDP/ICE between room owner and participant.</p>
+
+            <h2>Again, on the room owner's side</h2>
+            <p>Set remote descriptions using answer sdp sent by participant.</p>
+
+            <p>And handshake is completed! Are you sure? Wait....there is something else!</p>
+
+            <h2>ICE candidates gathered on room owner's side</h2>
+            <p>You should use same socket to exchange/post/transfer these ICE candidates on participant's side.</p>
+
+            <h2>ICE candidates gathered on participant's side</h2>
+            <p>You should use same socket to exchange/post/transfer these ICE candidates on room owner's side.</p>
+
+            <h2>Finally...</h2>
+            <p>And finally handshake is completed. You're done! Good job Sir!</p>
+
+            <h2>For upcoming participants</h2>
+
+            <p>For each new participant; repeat above process and that's it!</p>
+
+            <h2>For video-conferencing</h2>
+            <p>After successful handshake between room owner and the participant; transmit participant's details over all other connected sockets i.e. toward all other room participants.</p>
+            <p>As soon as other participants will receive transmitted details; make "auto" participation request toward that "last participant".</p>
+            <p>And then follow above process again.</p>
+
+            <br /><br />
+            <p>Explaining above theory using (a little bit real however) pseudo codes.</p>
+
+            <h2>Reusable functions...</h2>
+
+            <pre class="sh_javascript">
+function openSignalingChannel(channel) {
+   var socket = io.connect('http://your-site:8888/' + channel);
+}
+
+function createOffer() {
+   var peer = new RTCPeerConnection(null); // pass ICE-Servers
+   peer.createOffer({OfferToReceiveVideo:true}).then(onSuccess);
+}
+
+function createAnswer(offer_sdp) {
+   var peer = new RTCPeerConnection(null); // pass ICE-Servers
+   peer.setRemoteDescription(new RTCSessionDescription(offer_sdp)).then(function() {
+     peer.createAnswer({OfferToReceiveVideo:true}).then(onSuccess);
+   });
+}
+</pre>
+
+            <h2>Opening default signaling channel</h2>
+            <pre class="sh_javascript">
+var channel = openSignalingChannel('default-channel');
+channel.onmessage = function(message)
+{
+   if(message.participationRequest) {}
+   if(message.sharingRoomDetails) {}
+};
+</pre>
+
+            <h2>Assuming a new participant</h2>
+            <pre class="sh_javascript">
+channel.send({
+   isNewParticipant: true,
+   participant_id: participant_id
+});
+
+// this private socket will be used to exchange sdp/ice
+var privateChannel = openSignalingChannel(participant_id);
+privateChannel.onmessage = function(message) {
+   if(message.type === 'offer')
+   {
+       createAnswer(message.sdp);
+
+       // on creating answer-sdp; transmit it over "privateChannel"
+       privateChannel.send(answer_sdp);
+   }
+};
+</pre>
+
+            <h2>On participation request</h2>
+
+            <pre class="sh_javascript">
+if(message.isNewParticipant) {
+   var privateChannel = openSignalingChannel(message.participant_id);
+
+   createOffer();
+
+   // on creating offer-sdp; transmit it over "privateChannel"
+   privateChannel.send(offer_sdp);
+   privateChannel.onmessage = function(message)
+   {
+      if(message.type === 'answer') peer.setRemoteDescription(new RTCSessionDescription(message.sdp));
+   };
+}
+</pre>
+
+            <h2>Exchanging ICE</h2>
+
+            <pre class="sh_javascript">
+privateChannel.onmessage = function(message) {
+   if(message.ice) peer.addIceCandidate(new RTCIceCandidate(message.ice));
+};
+
+peer.onicecandidate = function(event) {
+   if(!event.candidate) return;
+   privateChannel.send(event.candidate);
+};
+</pre>
+
+            <h2>For video-conferencing</h2>
+
+            <p>After successful handshake:</p>
+            <pre class="sh_javascript">
+for(var i = 0; i < otherParticipants.length; i++) {
+    var participant = otherParticipants[i];
+
+    // send/emit/push/etc.
+    participant.send({
+        isNewParticipant: true,
+        participant_id: '0123456789'
+    });
+}
+</pre>
+            <p>Use "participant_id" you can make additional participation requests to him.</p>
+
+
+            <section style="border: 1px solid rgb(189, 189, 189); border-radius: .2em; margin: 1em 3em;">
+                <h2 id="feedback" style="border-bottom: 1px solid rgb(189, 189, 189); padding: .2em .4em;">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+        </article>
+        
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="https://cdn.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+</html>

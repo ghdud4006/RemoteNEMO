@@ -1,0 +1,14 @@
+﻿<script src="//www.webrtc-experiment.com/getMediaElement-v1.2.js"> </script>
+<script>
+navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+navigator.getUserMedia({ audio: true }, function(stream) {
+    var audioElement = getMediaElement(stream, {
+        toggle: ['record-audio']
+    });
+
+    document.body.appendChild(audioElement);
+
+	// to play video
+    audioElement.media.play();
+}, function() { });
+</script>

@@ -1,0 +1,359 @@
+﻿<!DOCTYPE html>
+<html id="home" lang="en">
+    <head>
+        <title>Share screen and audio/video from single peer connection!</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/+MuazKhan">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="https://cdn.webrtc-experiment.com/style.css">
+
+        <style>
+            .videos-container {
+                background: white;
+                border: 2px solid black;
+                border-radius: 0.2em;
+                display: inline-block;
+                margin: 2em .2em;
+                padding: .1em;
+                vertical-align: top;
+            }
+
+            .videos-container h2 {
+                border: 0;
+                border-top: 1px solid black;
+                display: block;
+                margin: 0;
+                text-align: center;
+            }
+
+            video {
+                background: black;
+                height: 15em;
+                width: 20em;
+            }
+
+            pre {
+                border-left: 2px solid red;
+                margin-left: 2em;
+                padding-left: 1em;
+            }
+
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+
+        <script src="https://cdn.WebRTC-Experiment.com/getScreenId.js"></script>
+        <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+    </head>
+    <body>
+        <article> <a href="https://www.webrtc-experiment.com/" style="border-bottom: 1px solid red; color: red; font-size: 1.2em; position: absolute; right: 0; text-decoration: none; top: 0;">←HOME</a>
+            <header style="text-align: center;">
+
+                <h1>Share screen and audio/video from single peer connection!</h1>
+
+                <p>
+                        <span> &copy; </span>
+                        <a href="https://MuazKhan.com/" target="_blank">Muaz Khan</a>
+                        
+                        .
+                        <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                        
+                        .
+                        <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                        
+                        .
+                        <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                        
+                        .
+                        <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+                
+                <div class="search-container">
+                    <gcse:search></gcse:search>
+                </div>
+            </header>
+
+            <blockquote>
+                If you are using Chrome version &lt;= 71 then <a href="https://chrome.google.com/webstore/detail/screen-capturing/ajhifddimkapgcifgcodmmfdlknahffk" target="_blank">this chrome-extension</a> is required.
+            </blockquote>
+
+            <div style="text-align: center;">
+                <div class="videos-container">
+                    <video id="video-stream" autoplay controls></video>
+                    <h2>video-stream</h2>
+
+                </div>
+                <div class="videos-container">
+                    <video id="screen-stream" autoplay controls></video>
+                    <h2>screen-stream</h2>
+
+                </div>
+            </div>
+            <script>
+                var mediaConstraints = {
+                    optional: [],
+                    mandatory: {
+                        OfferToReceiveAudio: true,
+                        OfferToReceiveVideo: true
+                    },
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
+                };
+            </script>
+            <script>
+                var offerer, answerer;
+                var videoStream = document.getElementById('video-stream');
+                var screenStream = document.getElementById('screen-stream');
+
+                window.iceServers = {
+                    iceServers: [{
+                        urls: 'stun:stun.l.google.com:19302'
+                    }]
+                };
+            </script>
+            <script>
+                /* offerer */
+
+                function offererPeer(video_stream, screen_stream) {
+                    offerer = new RTCPeerConnection(window.iceServers);
+
+                    // attaching audio/video stream
+                    if(video_stream) {
+                        offerer.addTrack(video_stream.getTracks()[0], video_stream);
+                    }
+
+                    // attaching screen capturing stream
+                    if(screen_stream) {
+                        offerer.addTrack(screen_stream.getTracks()[0], screen_stream);
+                    }
+
+                    offerer.onicecandidate = function(event) {
+                        if (!event || !event.candidate) return;
+                        answerer.addIceCandidate(event.candidate);
+                    };
+
+                    offerer.createOffer(mediaConstraints).then(function(offer) {
+                        offerer.setLocalDescription(offer).then(function() {
+                            console.log('offer->sdp->', offer.sdp);
+                            answererPeer(offer);
+                        });
+                    });
+                }
+            </script>
+            <script>
+                /* answerer */
+
+                function answererPeer(offer) {
+                    answerer = new RTCPeerConnection(window.iceServers);
+
+                    var gotFirstMediaStream = false;
+                    answerer.ontrack = function(event) {
+                        event.stream = event.streams[0];
+
+                        console.log(event.stream);
+
+                        // "video-stream" is attached in 1st order
+                        if (!gotFirstMediaStream) {
+                            gotFirstMediaStream = true;
+                            videoStream.srcObject = event.stream;
+                            videoStream.play();
+                        }
+
+                            // "screen-stream" is attached in 2nd order
+                        else {
+                            screenStream.srcObject = event.stream;
+                            screenStream.play();
+                        }
+                    };
+
+                    answerer.onicecandidate = function(event) {
+                        if (!event || !event.candidate) return;
+                        offerer.addIceCandidate(event.candidate);
+                    };
+
+                    answerer.setRemoteDescription(offer).then(function() {
+                        answerer.createAnswer(mediaConstraints).then(function(answer) {
+                            answerer.setLocalDescription(answer).then(function() {
+                                console.log('answer->sdp->', answer.sdp);
+                                offerer.setRemoteDescription(answer);
+                            });
+                        });
+                    });
+                }
+            </script>
+            <script>
+                function getUserMedia(callback, constraints) {
+                    navigator.mediaDevices.getUserMedia(constraints || {
+                        video: true
+                    }).then(callback).catch(function(e) {
+                        if (location.protocol === 'http:')
+                            throw '<https> is mandatory to capture screen.';
+                        else
+                            throw 'Screen capturing process is denied. Are you enabled flag: "Enable screen capture support in getUserMedia"?';
+
+                        console.error(e);
+                        callback();
+                    });
+                }
+            </script>
+            <script type="text/javascript">
+                function addStreamStopListener(stream, callback) {
+                    stream.addEventListener('ended', function() {
+                        callback();
+                        callback = function() {};
+                    }, false);
+                    stream.addEventListener('inactive', function() {
+                        callback();
+                        callback = function() {};
+                    }, false);
+                    stream.getTracks().forEach(function(track) {
+                        track.addEventListener('ended', function() {
+                            callback();
+                            callback = function() {};
+                        }, false);
+                        track.addEventListener('inactive', function() {
+                            callback();
+                            callback = function() {};
+                        }, false);
+                    });
+                }
+
+                function onScreenEnded(video_stream, screen_stream) {
+                    var videos = document.querySelectorAll('video');
+                    for(var i = 0; i < videos.length; i++) {
+                        var video = videos[i];
+                        video.parentNode.removeChild(video);
+                    }
+
+                    video_stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+
+                    screen_stream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
+                }
+            </script>
+            <script>
+                function updateFakeVideo(stream) {
+                    var video = document.createElement('video');
+                    video.muted = true;
+                    video.style.display = 'none';
+                    video.srcObject = stream;
+                    (document.body || document.documentElement).appendChild(video);
+                    video.play();
+                }
+                
+                getUserMedia(function(video_stream) {
+                    updateFakeVideo(video_stream);
+
+                    if(!!navigator.getDisplayMedia) {
+                        navigator.getDisplayMedia({
+                            video: true
+                        }).then(screen_stream => {
+                            updateFakeVideo(screen_stream);
+                            offererPeer(video_stream, screen_stream);
+
+                            addStreamStopListener(screen_stream, function() {
+                                onScreenEnded(video_stream, screen_stream);
+                            });
+                        }, error => {
+                            console.error(error);
+                            offererPeer(video_stream);
+                        });
+
+                        return;
+                    }
+
+                    getScreenStream(function(screen_stream) {
+                        updateFakeVideo(screen_stream);
+                        offererPeer(video_stream, screen_stream);
+
+                        addStreamStopListener(screen_stream, function() {
+                            onScreenEnded(video_stream, screen_stream);
+                        });
+                    }, function(error) {
+                        console.error(error);
+                        offererPeer(video_stream);
+                    });
+                });
+
+                function getScreenStream(callback, errorCB) {
+                    if (navigator.getDisplayMedia) {
+                        navigator.getDisplayMedia({
+                            video: true
+                        }).then(screenStream => {
+                            callback(screenStream);
+                        }, errorCB).catch(errorCB);
+                    } else if (navigator.mediaDevices.getDisplayMedia) {
+                        navigator.mediaDevices.getDisplayMedia({
+                            video: true
+                        }).then(screenStream => {
+                            callback(screenStream);
+                        }, errorCB).catch(errorCB);
+                    } else {
+                        getScreenId(function(error, sourceId, screen_constraints) {
+                            if(error) {
+                                errorCB(error);
+                                return;
+                            }
+
+                            navigator.mediaDevices.getUserMedia(screen_constraints).then(function(screenStream) {
+                                callback(screenStream);
+                            }, errorCB).catch(errorCB);
+                        });
+                    }
+                }
+            </script>
+			
+            <br /><br />
+            <ol>
+                <li>It is one-way streaming; flowing from peer1 to peer2.</li>
+                <li>peer1 attached both screen capturing stream; and audio/video stream.</li>
+                <li>On "peer2" side; "ontrack" event is fired two times.</li>
+                <li>First time; "ontrack" returned audio/video stream; and last time it returned screen capturing stream.</li>
+                <li>Basically it is multi-streams attachment demo.</li>
+                <li>You can get same functionality via "renegotiation" process; supported by RTCMultionnection v1.3 and v1.4</li>
+            </ol>
+			
+            <pre>
+// attaching audio/video stream
+offerer.addTrack(video_stream.getTracks()[0], video_stream);
+					
+// attaching screen capturing stream
+offerer.addTrack(screen_stream.getTracks()[0], screen_stream);
+</pre>
+
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+        </article>
+
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment" class="fork-left"></a>
+
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/licence/">MIT License</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+                <a href="https://github.com/muaz-khan" target="_blank">Github</a>
+            </p>
+        </footer>
+        <script src="https://cdn.webrtc-experiment.com/commits.js"> </script>
+    </body>
+</html>

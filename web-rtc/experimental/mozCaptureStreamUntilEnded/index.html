@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <title>mozCaptureStreamUntilEnded ® Muaz Khan</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link rel="author" type="text/html" href="https://plus.google.com/100325991024054712503">
+        <meta name="author" content="Muaz Khan">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <link rel="stylesheet" href="//cdn.webrtc-experiment.com/style.css">
+        <style>
+            .videos-container {
+                display: inline-block;
+                border: 2px solid black;
+                padding: .1em;
+                border-radius: 0.2em;
+                margin: 2em .2em;
+                background: white;
+                vertical-align: top;
+            }
+            .videos-container h2 {
+                border: 0;
+                border-top: 1px solid black;
+                margin: 0;
+                text-align: center;
+                display:block;
+            }
+            video {
+                width:20em;
+                height: 15em;
+                background: black;
+            }
+        </style>
+        <!-- for HTML5 el styling -->
+        <script>
+            document.createElement('article');
+            document.createElement('footer');
+        </script>
+    </head>
+    
+    <body>
+        <article>
+            <header style="text-align: center;">
+                <h1>
+                    mozCaptureStreamUntilEnded
+                    ® 
+                    <a href="https://github.com/muaz-khan" target="_blank">Muaz Khan</a>
+                </h1>            
+                <p>
+                    <a href="https://www.webrtc-experiment.com/">HOME</a>
+                    <span> &copy; </span>
+                    <a href="http://www.MuazKhan.com/" target="_blank">Muaz Khan</a>
+                    
+                    .
+                    <a href="http://twitter.com/WebRTCWeb" target="_blank" title="Twitter profile for WebRTC Experiments">@WebRTCWeb</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan?tab=repositories" target="_blank" title="Github Profile">Github</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/issues?state=open" target="_blank">Latest issues</a>
+                    
+                    .
+                    <a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">What's New?</a>
+                </p>
+            </header>
+			
+            <h2>WebM video loaded from server</h2><br>
+			<video id="pre-recorded-media" src="https://googledrive.com/host/0B6GWd_dUUTT8RzVSRVU2MlIxcm8/Pre-recorded-Media-Streaming/WebM-file-to-stream-as-pre-recorded-media.webm" controls autoplay muted></video>			
+            <br><br>
+			<div style="text-align:center;">
+				<button id="stream-pre-recorded-media" disabled>Stream Pre-Recorded Media</button>
+			</div>
+			
+			<script>
+                document.getElementById('pre-recorded-media').disabled = true;
+				document.getElementById('pre-recorded-media').addEventListener('loadedmetadata', function() {
+                    this.disabled = false;
+				});
+			</script>
+			
+            <div id="videos-container" style="text-align:center;display:none;">
+                <div class="videos-container">
+                    <video id="peer2-to-peer1" autoplay></video>
+                     <h2>Offerer-to-Answerer</h2>
+
+                </div>
+                <div class="videos-container">
+                    <video id="peer1-to-peer2" autoplay></video>
+                     <h2>Answerer-to-Offerer</h2>
+
+                </div>
+            </div>
+			<script>
+				if(!navigator.mozGetUserMedia) alert('This experiment is using "mozCaptureStreamUntilEnded". So, please test it on Firefox.');
+				 var mediaConstraints = {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
+				};
+			</script>
+            <script>
+                var offerer, answerer;
+                var offererToAnswerer = document.getElementById('peer1-to-peer2');
+                var answererToOfferer = document.getElementById('peer2-to-peer1');
+
+                window.RTCPeerConnection = window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+                window.RTCSessionDescription = window.mozRTCSessionDescription || window.RTCSessionDescription;
+                window.RTCIceCandidate = window.mozRTCIceCandidate || window.RTCIceCandidate;
+
+                navigator.getUserMedia = navigator.mozGetUserMedia || navigator.webkitGetUserMedia;
+                window.URL = window.webkitURL || window.URL;
+
+                window.iceServers = {
+                    iceServers: [{
+                            url: 'stun:23.21.150.121'
+                        }
+                    ]
+                };
+            </script>
+            <script>
+                /* offerer */
+
+                function offererPeer(preRecordedMediaStream) {
+                    offerer = new RTCPeerConnection(window.iceServers);
+                    offerer.addStream(preRecordedMediaStream);
+					console.log('added pre-recorded media stream for offerer', preRecordedMediaStream);
+
+                    offerer.onaddstream = function (event) {
+						alert('Wow, offerer got remote stream from answerer');
+                        offererToAnswerer.src = URL.createObjectURL(event.stream);
+                        offererToAnswerer.play();
+                    };
+
+                    offerer.onicecandidate = function (event) {
+                        if (!event || !event.candidate) return;
+                        answerer.addIceCandidate(event.candidate);
+                    };
+
+                    offerer.createOffer(function (offer) {
+                        offerer.setLocalDescription(offer);
+                        answererPeer(offer, preRecordedMediaStream);
+                    }, function(sdpError) {
+                        console.error('sdp-error', sdpError);
+                    }, mediaConstraints);
+                }
+            </script>
+            <script>
+                /* answerer */
+
+                function answererPeer(offer, preRecordedMediaStream) {
+                    answerer = new RTCPeerConnection(window.iceServers);
+                    answerer.addStream(preRecordedMediaStream);
+					console.log('added pre-recorded media stream for answerer', preRecordedMediaStream);
+
+                    answerer.onaddstream = function (event) {
+						alert('Wow, answerer got remote stream from offerer');
+                        answererToOfferer.src = URL.createObjectURL(event.stream);
+                        answererToOfferer.play();
+                    };
+
+                    answerer.onicecandidate = function (event) {
+                        if (!event || !event.candidate) return;
+                        offerer.addIceCandidate(event.candidate);
+                    };
+
+                    answerer.setRemoteDescription(offer);
+                    answerer.createAnswer(function (answer) {
+                        answerer.setLocalDescription(answer);
+                        offerer.setRemoteDescription(answer);
+                    }, function(sdpError) {
+                        console.error('sdp-error', sdpError);
+                    }, mediaConstraints);
+                }
+            </script>			
+            <script>
+				var preRecordedMedia = document.getElementById('pre-recorded-media');
+				
+				document.getElementById('stream-pre-recorded-media').onclick = function() {
+					this.disabled = true;
+					document.getElementById('videos-container').style.display = 'block';
+
+                    var preRecordedMediaStream;
+                    if(!!preRecordedMedia.captureStream) {
+                        preRecordedMediaStream = preRecordedMedia.captureStream();
+                    }
+                    else {
+                        preRecordedMediaStream = preRecordedMedia.mozCaptureStreamUntilEnded();
+                    }
+					
+					setTimeout(function() {
+						offererPeer(preRecordedMediaStream);
+					}, 5000);
+					window.preRecordedMediaStream = preRecordedMediaStream;
+				};
+				
+				window.onunload = function()
+				{
+					document.getElementById('stream-pre-recorded-media').disabled = false;
+				};
+            </script>
+			
+			<br /><br />
+
+			<h2>mozCaptureStreamUntilEnded is useful for?</h2>
+			
+			<p>It is useful for realtime pre-recorded media streaming.</p>
+			
+			<pre>
+if(!!preRecordedMedia.captureStream){
+    preRecordedMediaStream = preRecordedMedia.captureStream();
+}
+else {
+    preRecordedMediaStream = preRecordedMedia.mozCaptureStreamUntilEnded();
+}
+peer.addStream(preRecordedMediaStream);
+</pre>
+
+            <section class="experiment own-widgets latest-commits">
+                <h2 class="header" id="updates" style="color: red; padding-bottom: .1em;"><a href="https://github.com/muaz-khan/WebRTC-Experiment/commits/master" target="_blank">Latest Updates</a></h2>
+                <div id="github-commits"></div>
+            </section>
+        
+            <section class="experiment">
+                <h2 class="header" id="feedback">Feedback</h2>
+                <div>
+                    <textarea id="message" style="border: 1px solid rgb(189, 189, 189); height: 8em; margin: .2em; outline: none; resize: vertical; width: 98%;" placeholder="Have any message? Suggestions or something went wrong?"></textarea>
+                </div>
+                <button id="send-message" style="font-size: 1em;">Send Message</button><small style="margin-left: 1em;">Enter your email too; if you want "direct" reply!</small>
+            </section>
+        </article>
+        <a href="https://github.com/muaz-khan/WebRTC-Experiment/tree/master/experimental/mozCaptureStreamUntilEnded" class="fork-left"></a>
+        
+        <footer>
+            <p>
+                <a href="https://www.webrtc-experiment.com/">WebRTC Experiments</a>
+                © <a href="https://plus.google.com/+MuazKhan" rel="author" target="_blank">Muaz Khan</a>
+                <a href="mailto:muazkh@gmail.com" target="_blank">muazkh@gmail.com</a>
+            </p>
+        </footer>
+    
+        <!-- commits.js is useless for you! -->
+        <script src="//cdn.webrtc-experiment.com/commits.js" async> </script>
+    </body>
+
+</html>
