@@ -1,9 +1,0 @@
-# ignore everything
-*
-
-# but not these files...
-!FileBufferReader.js
-!FileBufferReader.min.js
-!package.json
-!bower.json
-!README.md
