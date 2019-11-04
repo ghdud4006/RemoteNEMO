@@ -4,7 +4,7 @@
   "description": "remote wayland/weston",
   "main": "server.js",
   "scripts": {
-    "test": "nodemon server.js",
+    "test": "node server.js",
     "start": "nodemon server.js"
   },
   "repository": {
