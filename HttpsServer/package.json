@@ -1,0 +1,32 @@
+{
+  "name": "remotenemo",
+  "version": "1.0.0",
+  "description": "remote wayland/weston",
+  "main": "server.js",
+  "scripts": {
+    "test": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ghdud4006/RemoteNEMO.git"
+  },
+  "keywords": [
+    "remotenemo"
+  ],
+  "author": "ghdud4006",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ghdud4006/RemoteNEMO/issues"
+  },
+  "homepage": "https://github.com/ghdud4006/RemoteNEMO#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "http": "0.0.0",
+    "https": "^1.0.0",
+    "nodemon": "^1.19.4",
+    "path": "^0.12.7",
+    "url": "^0.11.0"
+  }
+}
