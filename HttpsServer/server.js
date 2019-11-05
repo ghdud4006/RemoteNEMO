@@ -3,6 +3,7 @@ var url = require('url'),
     fs = require('fs'),
     https = require('https');
 
+//Setting HTTPS SSL key-pair
 const options = {
     key: fs.readFileSync('./keys/private.pem'),
     cert: fs.readFileSync('./keys/public.pem')
@@ -69,7 +70,7 @@ function serverHandler(request, response) {
 var app;
 
 app = https.createServer(options, serverHandler);
-
+// HTTPS server on 
 app = app.listen(process.env.PORT || 9002, process.env.IP || "0.0.0.0", function() {
     var addr = app.address();
     console.log("RemoteNEMO https server listening at", addr.address + ":" + addr.port);
