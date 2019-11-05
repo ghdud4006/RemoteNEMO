@@ -1,7 +1,7 @@
 # RemoteNEMO
 
 ## 2019 StarLab Project 
-### Remote Access for Wayland Protocol
+### Remote Access for Wayland NEMOSHELL
 #### by DCLAB
 
 - HttpServer: HTTP Node Server for Redirecting to HTTPS server
