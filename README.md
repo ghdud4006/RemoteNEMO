@@ -2,7 +2,6 @@
 
 ## 2019 StarLab Project 
 ### Remote Access for Wayland NEMOSHELL
-#### by DCLAB
 
 - HttpServer: HTTP Node Server for Redirecting to HTTPS server.
 - HttpsServer: HTTPS Node Server for Remote Access to NEMOSHELL, Communicating with Web Browser Clients.
