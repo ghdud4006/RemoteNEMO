@@ -1,4 +1,4 @@
-# RemoteNEMO
+# Remote NEMO
 
 ## 2019 StarLab Project 
 ### Remote Access for Wayland NEMOSHELL
