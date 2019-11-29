@@ -1,6 +1,6 @@
 # Remote NEMO
 
-## 2019 StarLab Project 
+## 2019 스타랩 프로젝트
 ### Remote Access for Wayland NEMOSHELL
 
 - HttpServer: HTTP Node Server for Redirecting to HTTPS server.
