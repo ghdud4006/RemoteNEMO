@@ -7,4 +7,9 @@
 - HttpsServer: HTTPS Node Server for Remote Access to NEMOSHELL, Communicating with Web Browser Clients.
 - AndroidClient: Android Client for Remote Access to NEMO-UX.
 
+## Sources Used
+### HttpsServer
+* [conference.js](https://github.com/muaz-khan/WebRTC-Experiment/tree/master/Pluginfree-Screen-Sharing) MIT License
+### AndroidClient
+* [android](https://www.android.com/) Apache License 2.0
 
